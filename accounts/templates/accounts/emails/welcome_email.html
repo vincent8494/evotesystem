@@ -1,0 +1,78 @@
+{% extends "accounts/emails/base.html" %}
+{% load i18n %}
+
+{% block content %}
+  <tr>
+    <td style="padding: 24px;">
+      <p style="margin: 0 0 24px; text-align: center;">
+        <img src="{{ protocol }}://{{ domain }}{% static 'images/logo.png' %}" alt="{{ site_name }}" style="max-width: 200px; height: auto;">
+      </p>
+      <h2 style="margin: 0 0 24px; font-size: 24px; font-weight: 500; text-align: center; color: #1976D2;">
+        {% trans "Welcome to" %} {{ site_name }}!
+      </h2>
+      <p style="margin: 0 0 16px;">
+        {% blocktrans with name=user.get_short_name %}Hello {{ name }},{% endblocktrans %}
+      </p>
+      <p style="margin: 0 0 16px;">
+        {% trans "Thank you for registering with us! We're excited to have you on board." %}
+      </p>
+      
+      {% if not user.is_active %}
+        <p style="margin: 0 0 16px;">
+          {% trans "To complete your registration, please activate your account by clicking the button below:" %}
+        </p>
+        <table border="0" cellspacing="0" cellpadding="0" style="margin: 24px 0;">
+          <tr>
+            <td align="center" bgcolor="#4CAF50" style="border-radius: 4px;">
+              <a href="{{ activation_url }}"
+                 style="display: inline-block; padding: 12px 24px; font-family: Arial, sans-serif; font-size: 16px; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: bold;">
+                {% trans "Activate Account" %}
+              </a>
+            </td>
+          </tr>
+        </table>
+        <p style="margin: 0 0 16px; color: #757575; font-size: 14px;">
+          {% blocktrans with expiration_days=expiration_days %}
+            This link will expire in {{ expiration_days }} days.
+          {% endblocktrans %}
+        </p>
+      {% else %}
+        <p style="margin: 0 0 16px;">
+          {% trans "Your account is now active and ready to use. You can log in to your account using the button below:" %}
+        </p>
+        <table border="0" cellspacing="0" cellpadding="0" style="margin: 24px 0;">
+          <tr>
+            <td align="center" bgcolor="#2196F3" style="border-radius: 4px;">
+              <a href="{{ protocol }}://{{ domain }}{% url 'accounts:login' %}"
+                 style="display: inline-block; padding: 12px 24px; font-family: Arial, sans-serif; font-size: 16px; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: bold;">
+                {% trans "Log In" %}
+              </a>
+            </td>
+          </tr>
+        </table>
+      {% endif %}
+      
+      <p style="margin: 0 0 16px;">
+        {% trans "Here are some things you can do next:" %}
+      </p>
+      <ul style="margin: 0 0 16px 16px; padding-left: 16px;">
+        <li>{% trans "Complete your profile information" %}</li>
+        <li>{% trans "Set up two-factor authentication for added security" %}</li>
+        <li>{% trans "Explore the platform features" %}</li>
+      </ul>
+      
+      <p style="margin: 0 0 16px;">
+        {% trans "If you have any questions, feel free to contact our support team at" %} 
+        <a href="mailto:{{ support_email }}" style="color: #1976D2;">{{ support_email }}</a>.
+      </p>
+      
+      <p style="margin: 0 0 16px; font-weight: 500;">
+        {% trans "Thanks again for joining us!" %}
+      </p>
+      
+      <p style="margin: 0 0 16px; color: #757575; font-size: 14px;">
+        {% trans "This is an automated message, please do not reply to this email." %}
+      </p>
+    </td>
+  </tr>
+{% endblock %}

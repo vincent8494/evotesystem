@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+{% block title %}{% trans 'Log In' %}{% endblock %}
+
+{% block page_title %}{% trans 'Log In to Your Account' %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <i class="bi bi-shield-lock display-4 text-primary"></i>
+                    <h2 class="h4 mt-3">{% trans 'Welcome Back' %}</h2>
+                    <p class="text-muted">
+                        {% trans 'Please enter your credentials to access your account.' %}
+                    </p>
+                </div>
+                
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    
+                    <div class="mb-3">
+                        {{ form.username|as_crispy_field }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.password|as_crispy_field }}
+                        <div class="text-end">
+                            <a href="{% url 'accounts:password_reset' %}" class="small">
+                                {% trans 'Forgot your password?' %}
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>{% trans 'Log In' %}
+                        </button>
+                    </div>
+                    
+                    <input type="hidden" name="next" value="{{ next }}">
+                </form>
+                
+                <hr class="my-4">
+                
+                <div class="text-center">
+                    <p class="mb-0">{% trans "Don't have an account?" %}
+                        <a href="{% url 'accounts:signup' %}" class="fw-bold">
+                            {% trans 'Sign up' %}
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

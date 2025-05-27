@@ -1,0 +1,346 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% trans 'Edit Profile' %}{% endblock %}
+
+{% block page_title %}
+    {% trans 'Edit Your Profile' %}
+    <a href="{% url 'accounts:profile' user.id %}" class="btn btn-outline-secondary btn-sm ms-2">
+        <i class="bi bi-arrow-left"></i> {% trans 'Back to Profile' %}
+    </a>
+{% endblock %}
+
+{% block content %}
+<style>
+    .profile-progress {
+        --progress-width: {{ profile_completion }}%;
+    }
+</style>
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <ul class="nav nav-tabs mb-4" id="profileTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="personal-tab" data-bs-toggle="tab" 
+                                data-bs-target="#personal" type="button" role="tab" 
+                                aria-controls="personal" aria-selected="true">
+                            <i class="bi bi-person"></i> {% trans 'Personal' %}
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="account-tab" data-bs-toggle="tab" 
+                                data-bs-target="#account" type="button" role="tab" 
+                                aria-controls="account" aria-selected="false">
+                            <i class="bi bi-gear"></i> {% trans 'Account' %}
+                        </button>
+                    </li>
+                    {% if user.profile.is_candidate %}
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="candidate-tab" data-bs-toggle="tab" 
+                                data-bs-target="#candidate" type="button" role="tab" 
+                                aria-controls="candidate" aria-selected="false">
+                            <i class="bi bi-person-badge"></i> {% trans 'Candidate' %}
+                        </button>
+                    </li>
+                    {% endif %}
+                </ul>
+                
+                <form method="post" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="tab-content" id="profileTabsContent">
+                        <!-- Personal Information Tab -->
+                        <div class="tab-pane fade show active" id="personal" role="tabpanel" aria-labelledby="personal-tab">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    {{ user_form.first_name|as_crispy_field }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ user_form.last_name|as_crispy_field }}
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    {{ profile_form.gender|as_crispy_field }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ profile_form.date_of_birth|as_crispy_field }}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ profile_form.phone_number|as_crispy_field }}
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ profile_form.address|as_crispy_field }}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">{% trans 'Profile Picture' %}</label>
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3">
+                                        {% if profile_form.instance.profile_picture %}
+                                            <img src="{{ profile_form.instance.profile_picture.url }}" 
+                                                 alt="{{ user.get_full_name }}" 
+                                                 class="rounded-circle" 
+                                                 style="width: 80px; height: 80px; object-fit: cover;">
+                                        {% else %}
+                                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" 
+                                                 style="width: 80px; height: 80px;">
+                                                <i class="bi bi-person text-muted" style="font-size: 2rem;"></i>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        {{ profile_form.profile_picture }}
+                                        <div class="form-text">
+                                            {% trans 'Recommended size: 200x200 pixels. Max size: 2MB.' %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Account Information Tab -->
+                        <div class="tab-pane fade" id="account" role="tabpanel" aria-labelledby="account-tab">
+                            <div class="mb-3">
+                                <label class="form-label">{% trans 'Email' %}</label>
+                                <input type="email" class="form-control" value="{{ user.email }}" disabled>
+                                <div class="form-text">
+                                    {% trans 'Contact support to change your email address.' %}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">{% trans 'Account Type' %}</label>
+                                <input type="text" class="form-control" 
+                                       value="{{ user.get_user_type_display }}" disabled>
+                                <div class="form-text">
+                                    {% trans 'Contact support to change your account type.' %}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">{% trans 'Account Status' %}</label>
+                                <div>
+                                    {% if user.is_active %}
+                                        <span class="badge bg-success">{% trans 'Active' %}</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">{% trans 'Inactive' %}</span>
+                                    {% endif %}
+                                    {% if user.is_verified %}
+                                        <span class="badge bg-success ms-2">{% trans 'Verified' %}</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark ms-2">{% trans 'Unverified' %}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">{% trans 'Member Since' %}</label>
+                                <input type="text" class="form-control" 
+                                       value="{{ user.date_joined|date:'F j, Y' }}" disabled>
+                            </div>
+                            
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle me-2"></i>
+                                {% trans 'For security reasons, some account details cannot be changed here. Please contact support for assistance.' %}
+                            </div>
+                        </div>
+                        
+                        <!-- Candidate Information Tab -->
+                        {% if user.profile.is_candidate %}
+                        <div class="tab-pane fade" id="candidate" role="tabpanel" aria-labelledby="candidate-tab">
+                            <div class="mb-3">
+                                {{ profile_form.party_affiliation|as_crispy_field }}
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ profile_form.bio|as_crispy_field }}
+                                <div class="form-text">
+                                    {% trans 'A short biography about yourself and your qualifications.' %}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ profile_form.manifesto|as_crispy_field }}
+                                <div class="form-text">
+                                    {% trans 'Your campaign promises and what you stand for.' %}
+                                </div>
+                            </div>
+                            
+                            <div class="alert alert-warning">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                {% trans 'Your candidate profile will be reviewed by the election committee before approval.' %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{% url 'accounts:profile' user.id %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-lg me-1"></i> {% trans 'Cancel' %}
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg me-1"></i> {% trans 'Save Changes' %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Account Security Card -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">{% trans 'Account Security' %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'accounts:password_change' %}" class="btn btn-outline-primary">
+                        <i class="bi bi-key me-2"></i>{% trans 'Change Password' %}
+                    </a>
+                    <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                        <i class="bi bi-trash me-2"></i>{% trans 'Delete Account' %}
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Profile Completion Card -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">{% trans 'Profile Completion' %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="progress mb-3" style="height: 10px;">
+                    <div class="progress-bar bg-success profile-progress" role="progressbar" 
+                         style="width: var(--progress-width)" 
+                         aria-valuenow="{{ profile_completion }}" 
+                         aria-valuemin="0" 
+                         aria-valuemax="100"></div>
+                </div>
+                <p class="text-center mb-0">{{ profile_completion }}% {% trans 'complete' %}</p>
+                
+                <ul class="list-unstyled mt-3">
+                    <li class="mb-2">
+                        {% if user.first_name and user.last_name %}
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        {% else %}
+                            <i class="bi bi-circle me-2"></i>
+                        {% endif %}
+                        {% trans 'Full Name' %}
+                    </li>
+                    <li class="mb-2">
+                        {% if user.profile.phone_number %}
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        {% else %}
+                            <i class="bi bi-circle me-2"></i>
+                        {% endif %}
+                        {% trans 'Phone Number' %}
+                    </li>
+                    <li class="mb-2">
+                        {% if user.profile.profile_picture %}
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        {% else %}
+                            <i class="bi bi-circle me-2"></i>
+                        {% endif %}
+                        {% trans 'Profile Picture' %}
+                    </li>
+                    {% if user.profile.is_candidate %}
+                    <li class="mb-2">
+                        {% if user.profile.bio %}
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        {% else %}
+                            <i class="bi bi-circle me-2"></i>
+                        {% endif %}
+                        {% trans 'Candidate Bio' %}
+                    </li>
+                    <li>
+                        {% if user.profile.manifesto %}
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        {% else %}
+                            <i class="bi bi-circle me-2"></i>
+                        {% endif %}
+                        {% trans 'Candidate Manifesto' %}
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Account Modal -->
+<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteAccountModalLabel">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>{% trans 'Delete Account' %}
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    {% trans 'Warning: This action cannot be undone. All your data will be permanently deleted.' %}
+                </div>
+                <p>{% trans 'Are you sure you want to delete your account? This will:' %}</p>
+                <ul>
+                    <li>{% trans 'Permanently delete your profile and all associated data' %}</li>
+                    <li>{% trans 'Remove your access to all elections and voting history' %}</li>
+                    <li>{% trans 'Cancel any pending candidate applications' %}</li>
+                </ul>
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="confirmDelete">
+                    <label class="form-check-label" for="confirmDelete">
+                        {% trans 'I understand that this action cannot be undone' %}
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg me-1"></i>{% trans 'Cancel' %}
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn" disabled>
+                    <i class="bi bi-trash me-1"></i>{% trans 'Delete My Account' %}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Enable/disable delete button based on confirmation
+    document.getElementById('confirmDelete').addEventListener('change', function() {
+        document.getElementById('confirmDeleteBtn').disabled = !this.checked;
+    });
+    
+    // Handle delete account confirmation
+    document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+        // In a real implementation, you would make an AJAX call to delete the account
+        // For now, we'll just show an alert
+        alert('Account deletion would be processed here. This is just a demo.');
+        // Redirect to home or login page after deletion
+        // window.location.href = "{% url 'home' %}";
+    });
+    
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+    
+    // Show the first tab by default
+    var firstTabEl = document.querySelector('#profileTabs li:first-child button');
+    var firstTab = new bootstrap.Tab(firstTabEl);
+    firstTab.show();
+</script>
+{% endblock %}

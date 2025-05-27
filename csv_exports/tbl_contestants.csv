@@ -1,0 +1,120 @@
+001,101,male,j,FORM LEVEL,,GEORGE NJUNGE ,50,form captain,001
+004,101,female,j,CLASS LEVEL,,FAITH MUTHONI,30,class prefect,001
+005,101,male,j,CLASS LEVEL,,FRANCIS KANGETHE ,40,class prefect,001
+006,102,female,k,CLASS LEVEL,,MARY NYAKIAGO,57,class prefect,006
+007,102,male,k,FORM  LEVEL,,JOHN NDUA ,70,form captain,006
+008,102,male,k,CLASS  LEVEL,,JOHNSON NDUA ,46,class prefect,006
+009,102,female,k,FORM  LEVEL,,MARY GITHIU,79,form captain,006
+010,102,male,k,CLASS  LEVEL,,MARK KIMANI,28,class prefect,006
+011,103,male,l,FORM  LEVEL,,COLLINS MUNENE ,213,form captain,011
+012,103,female,l,FORM LEVEL,,JUDITH NJATHI,121,form captain,011
+013,103,female,l,CLASS LEVEL,,SHEILA MIKE ,45,class prefect,011
+014,103,female,l,CLASS LEVEL,,MILLICENT WAMBUI,34,class prefect,011
+015,103,female,l,FORM LEVEL,,JANE NJOKI,122,form captain,011
+016,104,male,m,FORM LEVEL ,,LUKE KAMAU,130,form captain,016
+017,104,male,m,FORM LEVEL,,MATHEW MUNENE,180,form captain,016
+018,104,male,m,CLASS LEVEL,,DAVID NANGAMI,37,class prefect,016
+019,104,male,m,CLASS LEVEL,,VINCENT MBUGUA ,49,class prefect,016
+020,104,male,m,CLASS LEVEL,,FETTY MIKE ,38,class prefect,016
+021,117,male,j,SCHOOL LEVEL,,CHRIS BREEZY,600,games captain,021
+022,117,male,j,SCHOOL LEVEL,,CALVIN NOTE,700,head boy,021
+023,117,male,j,SCHOOL LEVEL,,KLEIV MIRARA,500,library captain,021
+024,117,male,j,SCHOOL LEVEL,,YOUNG PUFFY,567,DH captain,021
+025,117,male,j,SCHOOL LEVEL,,DRAKE MUTONGA,400,library captain,021
+026,118,female,k,SCHOOL LEVEL,,MICK MILLY,467,head girl,026
+027,118,male,k,FORM  LEVEL,,IAN NJUNGE,201,form captain,026
+028,118,male,k,CLASS  LEVEL,,JEFF BEZOS ,45,class prefect,026
+029,118,male,k,FORM  LEVEL,,WARREN BUFFET,200,form captain,026
+030,118,male,k,CLASS  LEVEL,,CLARKE OBED,39,class prefect,026
+031,118,male,k,SCHOOL LEVEL,,VERNOR KARIUKI,300,library captain,026
+032,119,male,l,FORM LEVEL,,JAMES KARIUKI,125,form captain,032
+033,119,male,l,SCHOOL LEVEL,,MAROON FIFTY,500,library captain,032
+034,119,male,l,CLASS LEVEL,,JOEL KUNGU,45,class prefect,032
+035,119,male,l,SCHOOL LEVEL ,,JOE NGANGA,489,DH captain,032
+036,119,female,l,FORM LEVEL ,,ELIZABETH NYOKABI,203,form captain,032
+037,120,male,m,CLASS LEVEL,,JACK MARUGE ,32,class prefect,037
+038,120,female,m,CLASS LEVEL,,EVALYNE NGATIA,34,class prefect,037
+039,120,male,m,CLASS LEVEL,,TOM MBOYA ,33,class prefect,037
+040,120,male,m,SCHOOL LEVEL,,HARRY KAMAU,300,DH captain,037
+041,110,male,m,FORM LEVEL,,STANLEY MBATIA ,127,form captain,041
+042,110,female,m,CLASS LEVEL,,SHELLEY GITONGA ,46,class prefect,041
+043,110,male,m,CLASS LEVEL,,WILLIAM GACUIRI,45,class prefect,041
+044,110,male,m,CLASS LEVEL,,DAVIS KARIUKI,23,class prefect,041
+045,111,male,n,FORM LEVEL,,HENRY KAMAU,132,form captain,045
+046,111,male,n,CLASS LEVEL,,BILLY GATERE,25,class prefect,045
+047,111,female,n,FORM  LEVEL,,NICKY NYOKABI,142,form captain,045
+048,111,male,n,CLASS  LEVEL,,BRUNO KARIUKI,34,class prefect,045
+049,111,male,n,FORM  LEVEL,,DICKSON NDEGWA,154,form captain,045
+050,111,male,n,CLASS  LEVEL,,GORDON KARIUKI,28,class prefect,045
+051,111,female,n,FORM LEVEL,,VIVIAN WANGARI,189,form captain,045
+052,107,male,j,FORM LEVEL,,LOCKWOOD KAMAU,187,form captain,052
+053,107,male,j,CLASS LEVEL,,JOSE NJENGA ,31,class prefect,052
+054,107,male,j,CLASS LEVEL,,LEON MUNENE,30,class prefect,052
+055,107,male,j,FORM LEVEL,,SIMON NJENGA,217,form captain,052
+056,107,female,j,FORM LEVEL ,,NANCY FRIDA,231,form captain,052
+057,107,female,j,FORM LEVEL,,PHYLLIS NJERI,243,form captain,052
+058,108,female,k,CLASS LEVEL,,PERIS WANGARI,29,class prefect,058
+059,108,male,k,FORM LEVEL,,GEORGIA MUTHONI,234,form captain,058
+060,108,female,k,FORM LEVEL,,MAY WANGARI,245,form captain,058
+061,113,female,k,SCHOOL LEVEL,,JUNE MUTHONI,209,head girl,061
+062,118,female,k,SCHOOL LEVEL,,APRIL GITONGA ,467,head boy,026
+063,114,female,l,FORM  LEVEL,,ANITA MUNENE,211,form captain,063
+064,119,male,l,CLASS  LEVEL,,JEREMY MAINA ,12,class prefect,032
+065,114,male,l,FORM  LEVEL,,AUGUSTINE KARIUKI,238,form captain,063
+066,119,male,l,CLASS  LEVEL,,STEPHEN KISOMBE ,43,class prefect,032
+067,119,male,l,SCHOOL LEVEL,,JEREMIAH MAKUMI,309,library captain,032
+068,114,male,l,FORM LEVEL,,PAUL NJIHIA,249,form captain,063
+069,120,female,m,SCHOOL LEVEL,,STEPHANY NJOKI,568,head girl,037
+070,115,male,m,CLASS LEVEL,,VINGE MARUGE ,41,class prefect,070
+071,120,male,m,SCHOOL LEVEL ,,BENJAMIN MAINA,699,DH captain,037
+072,115,male,m,FORM LEVEL ,,OBERG KUNGU,213,form captain,070
+073,120,female,m,CLASS LEVEL,,CHRISTINE ADHIAMBO,37,class prefect,037
+074,115,female,m,CLASS LEVEL,,CHRISTABELL NJOKI ,30,class prefect,070
+075,121,female,n,CLASS LEVEL,,ANNABELL NJERI,43,class prefect,075
+076,105,male,n,FORM LEVEL,,BRIAN  MANGERE,213,form captain,076
+077,111,male,n,FORM LEVEL,,ERIC THUO,214,form captain,045
+078,105,male,n,CLASS LEVEL,,MARCUS KIMANI,23,class prefect,076
+079,105,male,n,FORM LEVEL,,KEVIN GICHIMU,213,form captain,076
+080,111,male,n,FORM LEVEL,,DANIEL BORO,215,form captain,045
+081,120,female,m,SCHOOL LEVEL,,Abigael Mumanyi,330,DH captain,037
+082,110,male,m,FORM LEVEL,,Allan Junior,137,form captain,041
+083,110,female,m,CLASS LEVEL,,Berda Anyango,6,class prefect,041
+084,110,female,m,CLASS LEVEL,,Beth Muthoni,5,class prefect,041
+085,110,female,m,CLASS LEVEL,,Dammaris Nyagoko,3,class prefect,041
+086,111,male,n,FORM LEVEL,,Danteh Mmoja,162,form captain,045
+087,111,male,n,CLASS LEVEL,,David Daudy,5,class prefect,045
+088,111,male,n,FORM  LEVEL,,Edward Kibunya,42,form captain,045
+089,111,female,n,CLASS  LEVEL,,Emmah Atieno,4,class prefect,045
+090,111,female,n,FORM  LEVEL,,Eric Mutuini,54,form captain,045
+091,111,female,n,CLASS  LEVEL,,Esther Wairimu,8,class prefect,045
+092,111,female,n,FORM LEVEL,,Fidel Atieno,19,form captain,045
+093,107,female,j,FORM LEVEL,,Florence Anguenyi,17,form captain,052
+094,107,female,j,CLASS LEVEL,,Florence Flora,1,class prefect,052
+095,107,male,j,CLASS LEVEL,,Frank Kuria,0,class prefect,052
+096,107,female,j,FORM LEVEL,,Fridah Adoo,17,form captain,052
+097,107,male,j,FORM LEVEL ,,George Gin,31,form captain,052
+098,107,male,j,FORM LEVEL,,George Kinuthia,43,form captain,052
+099,108,male,k,CLASS LEVEL,,Ian Karismatic,9,class prefect,058
+100,108,male,k,FORM LEVEL,,Jeff Dezantos,34,form captain,058
+101,108,male,k,FORM LEVEL,,Joel Mrasta,45,form captain,058
+102,113,male,k,SCHOOL LEVEL,,John kanyi,9,head girl,061
+103,118,male,k,SCHOOL LEVEL,,Joram Dekartel,47,head boy,026
+104,114,female,l,FORM  LEVEL,,Joyce Mueni,11,form captain,063
+105,119,female,l,CLASS  LEVEL,,Mary Naserian,2,class prefect,032
+106,114,female,l,FORM  LEVEL,,Mirriam Waithera,38,form captain,063
+107,119,female,l,CLASS  LEVEL,,Mitchell Nyambura,3,class prefect,032
+108,119,female,l,SCHOOL LEVEL,,Naphal Nyambura,9,library captain,032
+109,114,male,l,FORM LEVEL,,Nicholus Kiama,49,form captain,063
+110,120,male,m,SCHOOL LEVEL,,Paul Ngugi,58,head girl,037
+111,115,male,m,CLASS LEVEL,,Peter Collins,4,class prefect,070
+112,120,male,m,SCHOOL LEVEL ,,Peter Mwema,99,DH captain,037
+113,115,male,m,FORM LEVEL ,,Peter Thiongo,13,form captain,070
+114,120,male,m,CLASS LEVEL,,Phillip Ndegwan,7,class prefect,037
+115,115,male,m,CLASS LEVEL,,Pindrop Gaitho,3,class prefect,070
+116,121,female,n,CLASS LEVEL,,Ruth Wakarura,3,class prefect,075
+117,105,female,n,FORM LEVEL,,Shazzy Muthoni,13,form captain,076
+118,111,male,n,FORM LEVEL,,Timy Kafupi,14,form captain,045
+119,105,female,n,CLASS LEVEL,,Valle Vallin,3,class prefect,076
+120,105,female,n,FORM LEVEL,,Yvonne Mutuko,13,form captain,076
+002,101,male,j,FORM LEVEL,,PETER KAMAU,30,form captain,001
+003,101,female,j,FORM LEVEL,,SHARON MOKEIRA,40,form captain,001

@@ -1,0 +1,278 @@
+{% load i18n static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{% block meta_description %}Online Electoral System for transparent and secure voting.{% endblock %}">
+    
+    <title>{% block title %}Online Electoral System{% endblock %}</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <style>
+        .back-button {
+            transition: opacity 0.3s ease;
+        }
+        .back-button.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body data-election-active="{{ election.status == 'active'|yesno:'true,false' }}" 
+      data-event-source-url="{% url 'voting:election_results_stream' election.pk %}">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <i class="bi bi-shield-lock-fill me-2"></i>E-Vote
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item me-2">
+                        <button id="backButton" class="btn btn-outline-light btn-sm mt-1 back-button" onclick="window.history.back()" title="{% trans 'Go back' %}">
+                            <i class="bi bi-arrow-left"></i> {% trans 'Back' %}
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}">
+                            <i class="bi bi-house-door"></i> {% trans 'Home' %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}">
+                            <i class="bi bi-list-check"></i> {% trans 'Elections' %}
+                        </a>
+                    </li>
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'accounts:dashboard' %}">
+                                <i class="bi bi-speedometer2"></i> {% trans 'Dashboard' %}
+                            </a>
+                        </li>
+                        {% if user.is_staff %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" 
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-gear"></i> {% trans 'Admin' %}
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+                                <li><a class="dropdown-item" href="{% url 'admin:index' %}">
+                                    <i class="bi bi-speedometer"></i> {% trans 'Admin Panel' %}
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'voting:election_create' %}">
+                                    <i class="bi bi-plus-circle"></i> {% trans 'Create Election' %}
+                                </a></li>
+                            </ul>
+                        </li>
+                        {% endif %}
+                    {% endif %}
+                </ul>
+                
+                <ul class="navbar-nav ms-auto">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" 
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-person-circle"></i> {{ user.get_short_name|default:user.email }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'accounts:profile' user.id %}">
+                                        <i class="bi bi-person"></i> {% trans 'My Profile' %}
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'accounts:profile_edit' %}">
+                                        <i class="bi bi-pencil-square"></i> {% trans 'Edit Profile' %}
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'accounts:password_change' %}">
+                                        <i class="bi bi-key"></i> {% trans 'Change Password' %}
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'accounts:logout' %}">
+                                        <i class="bi bi-box-arrow-right"></i> {% trans 'Logout' %}
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'accounts:login' %}?next={{ request.path|urlencode }}">
+                                <i class="bi bi-box-arrow-in-right"></i> {% trans 'Login' %}
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'accounts:signup' %}">
+                                <i class="bi bi-person-plus"></i> {% trans 'Sign Up' %}
+                            </a>
+                        </li>
+                    {% endif %}
+                    
+                    <!-- Language Selector -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" 
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-translate"></i> {% trans 'Language' %}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
+                            <form action="{% url 'set_language' %}" method="post" id="language-form">
+                                {% csrf_token %}
+                                <input name="next" type="hidden" value="{{ redirect_to }}">
+                                {% get_available_languages as LANGUAGES %}
+                                {% get_language_info_list for LANGUAGES as languages %}
+                                {% for language in languages %}
+                                    <li>
+                                        <button type="submit" 
+                                                name="language" 
+                                                value="{{ language.code }}" 
+                                                class="dropdown-item {% if language.code == LANGUAGE_CODE %}active{% endif %}">
+                                            {{ language.name_local|capfirst }} ({{ language.code }})
+                                        </button>
+                                    </li>
+                                {% endfor %}
+                            </form>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container my-4">
+        <!-- Messages -->
+        {% if messages %}
+        <div class="row">
+            <div class="col-12">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        <!-- Page Title -->
+        {% block page_header %}
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>{% block page_title %}{% endblock %}</h1>
+                {% block page_actions %}{% endblock %}
+            </div>
+            <hr>
+        {% endblock %}
+        
+        <!-- Main Content -->
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-light text-muted py-4 mt-5 border-top">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; {% now "Y" %} Online Electoral System. {% trans 'All rights reserved.' %}</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="{% url 'about' %}" class="text-muted me-3">{% trans 'About' %}</a>
+                    <a href="{% url 'contact' %}" class="text-muted me-3">{% trans 'Contact' %}</a>
+                    <a href="{% url 'privacy' %}" class="text-muted me-3">{% trans 'Privacy Policy' %}</a>
+                    <a href="{% url 'terms' %}" class="text-muted">{% trans 'Terms of Service' %}</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom JS -->
+    <script src="{% static 'js/script.js' %}"></script>
+    
+    <!-- Form validation and enhanced UX -->
+    <script>
+    // Enable Bootstrap tooltips
+    document.addEventListener('DOMContentLoaded', function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+        
+        // Auto-hide alerts after 5 seconds
+        var alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function(alert) {
+            setTimeout(function() {
+                var bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }, 5000);
+        });
+    });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+    
+    <!-- CSRF Token for AJAX -->
+    <script>
+        const csrftoken = '{{ csrf_token }}';
+        const currentLanguage = '{{ LANGUAGE_CODE }}';
+        
+        // Handle back button visibility
+        document.addEventListener('DOMContentLoaded', function() {
+            const backButton = document.getElementById('backButton');
+            if (backButton) {
+                // Hide back button if there's no history or if we're on the first page
+                if (window.history.length <= 1) {
+                    backButton.style.visibility = 'hidden';
+                }
+                
+                // Add click handler with fallback
+                backButton.addEventListener('click', function(e) {
+                    if (window.history.length > 1) {
+                        window.history.back();
+                    } else {
+                        // Fallback to home if no history
+                        window.location.href = '/';
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

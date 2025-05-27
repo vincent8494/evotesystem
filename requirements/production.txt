@@ -1,0 +1,27 @@
+# Core dependencies
+Django>=5.2.1,<6.0
+django-crispy-forms>=2.1
+crispy-bootstrap5>=2023.10
+django-extensions>=3.2.3
+django-sslserver>=1.0.0
+python-dotenv>=1.0.0
+whitenoise>=6.6.0
+gunicorn>=21.2.0
+psycopg2-binary>=2.9.9
+dj-database-url>=2.0.0
+django-filter>=23.5
+djangorestframework>=3.14.0
+redis>=5.0.1
+django-redis>=5.4.0
+Pillow>=10.2.0
+
+# Production specific
+sentry-sdk>=1.39.1
+django-storages[google]>=1.14.2  # If using Google Cloud Storage
+python-memcached>=1.59  # If using Memcached
+
+# Security
+python-decouple>=3.8
+dj-database-url>=2.0.0
+django-axes>=6.0.3
+django-ratelimit>=4.0.0

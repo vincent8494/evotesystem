@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static voting_tags %}
+
+{% block extra_css %}
+{{ block.super }}
+<!-- Custom CSS for voting app -->
+<link rel="stylesheet" href="{% static 'voting/css/voting.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="voting-app">
+    <!-- Page Header -->
+    <div class="page-header mb-4">
+        <div class="row align-items-center">
+            <div class="col">
+                <h1 class="page-title">
+                    <i class="fas fa-vote-yea me-2"></i>
+                    {% block page_title %}Online Voting{% endblock %}
+                </h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'home' %}">{% trans 'Home' %}</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'voting:election_list' %}">{% trans 'Elections' %}</a></li>
+                        {% block breadcrumbs %}{% endblock %}
+                    </ol>
+                </nav>
+            </div>
+            <div class="col-auto">
+                {% block page_actions %}{% endblock %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Messages -->
+    {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{% trans 'Close' %}"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <!-- Main Content -->
+    <div class="row">
+        <div class="col-12">
+            {% block voting_content %}
+            <!-- Voting app content goes here -->
+            {% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<!-- Custom JS for voting app -->
+<script src="{% static 'voting/js/voting.js' %}"></script>
+{% endblock %}

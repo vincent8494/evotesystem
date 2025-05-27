@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}{% trans 'Account Activation Failed' %}{% endblock %}
+
+{% block page_title %}{% trans 'Account Activation Failed' %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-body p-4 text-center">
+                <div class="mb-4">
+                    <i class="bi bi-exclamation-triangle display-4 text-danger"></i>
+                </div>
+                
+                <h2 class="h4 mb-3">{% trans 'Activation Failed' %}</h2>
+                
+                <div class="alert alert-danger">
+                    <p class="mb-0">
+                        {% if error == 'invalid' %}
+                            {% trans 'The activation link is invalid. Please check the link and try again.' %}
+                        {% elif error == 'expired' %}
+                            {% trans 'The activation link has expired. Please request a new activation email.' %}
+                        {% elif error == 'already_active' %}
+                            {% trans 'This account is already active. Please log in to continue.' %}
+                        {% else %}
+                            {% trans 'An error occurred while activating your account. Please try again later.' %}
+                        {% endif %}
+                    </p>
+                </div>
+                
+                <p class="text-muted mb-4">
+                    {% trans 'If you need assistance, please contact our support team.' %}
+                </p>
+                
+                <div class="d-grid gap-2 col-md-8 mx-auto">
+                    {% if error == 'expired' or error == 'invalid' %}
+                        <a href="{% url 'accounts:resend_activation' %}" class="btn btn-primary">
+                            <i class="bi bi-envelope"></i> {% trans 'Resend Activation Email' %}
+                        </a>
+                    {% endif %}
+                    
+                    <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-house"></i> {% trans 'Return to Homepage' %}
+                    </a>
+                </div>
+                
+                <hr class="my-4">
+                
+                <p class="mb-0">
+                    {% trans 'Already have an account?' %}
+                    <a href="{% url 'accounts:login' %}" class="fw-bold text-decoration-none ms-1">
+                        {% trans 'Log In' %}
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

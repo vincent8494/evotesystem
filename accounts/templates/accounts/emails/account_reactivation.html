@@ -1,0 +1,136 @@
+{% extends "accounts/emails/base_email.html" %}
+{% load i18n static %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 0 auto; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333;">
+    <!-- Header with Logo -->
+    <div style="background: linear-gradient(135deg, #4e73df 0%, #224abe 100%); padding: 30px 0; text-align: center; border-radius: 8px 8px 0 0;">
+        <img src="{{ protocol }}://{{ domain }}{% static 'img/logo-white.png' %}" alt="{{ site_name }}" style="max-width: 180px; height: auto;">
+    </div>
+    
+    <!-- Main Content -->
+    <div style="background: #ffffff; padding: 40px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);">
+        <!-- Welcome Icon -->
+        <div style="text-align: center; margin-bottom: 20px;">
+            <div style="font-size: 64px; color: #4e73df; background: #f0f7ff; width: 120px; height: 120px; line-height: 120px; border-radius: 50%; display: inline-block; margin: 0 auto;">
+                👋
+            </div>
+        </div>
+        
+        <!-- Greeting -->
+        <h1 style="color: #2d3748; font-size: 26px; margin: 0 0 20px; text-align: center;">
+            {% trans "Welcome Back to " %}{{ site_name }}!
+        </h1>
+        
+        <!-- Personalized Greeting -->
+        <p style="margin: 0 0 16px; color: #4a5568; font-size: 15px; line-height: 1.6;">
+            {% blocktrans with name=user.get_short_name %}Hello {{ name }},{% endblocktrans %}
+        </p>
+        
+        <!-- Main Message -->
+        <p style="margin: 0 0 16px; color: #4a5568; font-size: 15px; line-height: 1.6;">
+            {% trans "We're thrilled to see you again! Your account has been successfully reactivated and is ready to use." %}
+        </p>
+        
+        <!-- Security Alert -->
+        <div style="background-color: #f0f7ff; border-left: 4px solid #4e73df; padding: 15px; margin: 20px 0; border-radius: 4px; display: flex; align-items: flex-start;">
+            <span style="color: #4e73df; margin-right: 10px; font-size: 20px; margin-top: 2px;">ℹ️</span>
+            <div>
+                <strong>{% trans "Account Reactivated" %}:</strong> {% trans "You can now access all your previous data and settings." %}
+            </div>
+        </div>
+        
+        <!-- CTA Button -->
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="{{ protocol }}://{{ domain }}{% url 'accounts:login' %}" 
+               style="display: inline-block; background: #4e73df; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 6px; font-weight: 600; font-size: 16px; transition: all 0.3s ease;">
+                {% trans "Log In to Your Account" %}
+            </a>
+            <p style="font-size: 13px; color: #718096; margin: 10px 0 0 0;">
+                {% trans "This link will expire in 24 hours for security reasons" %}
+            </p>
+        </div>
+        
+        <!-- Divider -->
+        <div style="border-top: 1px solid #e2e8f0; margin: 30px 0;"></div>
+        
+        <!-- What's New Section -->
+        <h3 style="color: #2d3748; font-size: 18px; margin: 25px 0 15px 0;">
+            {% trans "What's New Since You've Been Away" %}
+        </h3>
+        <ul style="list-style: none; padding: 0; margin: 0 0 20px 0;">
+            <li style="padding: 8px 0 8px 35px; position: relative; margin-bottom: 5px;">
+                <span style="position: absolute; left: 0; top: 10px; color: #38a169;">✓</span>
+                {% trans "New security features to protect your account" %}
+            </li>
+            <li style="padding: 8px 0 8px 35px; position: relative; margin-bottom: 5px;">
+                <span style="position: absolute; left: 0; top: 10px; color: #38a169;">✓</span>
+                {% trans "Faster and more reliable voting experience" %}
+            </li>
+            <li style="padding: 8px 0 8px 35px; position: relative; margin-bottom: 5px;">
+                <span style="position: absolute; left: 0; top: 10px; color: #38a169;">✓</span>
+                {% trans "Enhanced privacy controls" %}
+            </li>
+        </ul>
+        
+        <!-- Security Tips -->
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; margin: 30px 0;">
+            <h3 style="color: #2d3748; font-size: 16px; margin: 0 0 10px 0; display: flex; align-items: center;">
+                <span style="color: #4e73df; margin-right: 10px;">🔒</span>
+                {% trans "Security Tips" %}
+            </h3>
+            <p style="margin: 0 0 10px 0; color: #4a5568; font-size: 14px;">
+                {% trans "Keep your account secure with these recommendations:" %}
+            </p>
+            <ul style="margin: 0 0 0 20px; padding: 0; color: #4a5568; font-size: 14px;">
+                <li style="margin-bottom: 5px;">{% trans "Use a strong, unique password" %}</li>
+                <li style="margin-bottom: 5px;">{% trans "Enable two-factor authentication" %}</li>
+                <li style="margin-bottom: 5px;">{% trans "Review your account activity regularly" %}</li>
+            </ul>
+        </div>
+        
+        <!-- Security Notice -->
+        <div style="background-color: #fff5f5; border-left: 4px solid #e53e3e; padding: 15px; margin: 20px 0; border-radius: 4px; display: flex; align-items: flex-start;">
+            <span style="color: #e53e3e; margin-right: 10px; font-size: 20px;">⚠️</span>
+            <div>
+                <strong>{% trans "Security Notice" %}:</strong> 
+                {% trans "If you didn't request this reactivation, please" %}
+                <a href="mailto:{{ support_email }}" style="color: #2c5282; text-decoration: none; font-weight: 600;">
+                    {% trans "contact our support team" %}
+                </a> 
+                {% trans "immediately." %}
+            </div>
+        </div>
+        
+        <!-- Closing -->
+        <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+            <p style="margin: 0 0 10px 0; color: #4a5568;">
+                {% trans "We're glad to have you back in our community!" %}
+            </p>
+            <p style="margin: 0; color: #4a5568;">
+                {% trans "Best regards," %}<br>
+                <strong>{% trans "The " %}{{ site_name }}{% trans " Team" %}</strong>
+            </p>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <div style="text-align: center; padding: 20px 0; color: #718096; font-size: 13px; line-height: 1.6; margin-top: 20px;">
+        <p style="margin: 0 0 10px 0;">
+            &copy; {% now "Y" %} {{ site_name }}. {% trans "All rights reserved." %}<br>
+            <a href="{{ protocol }}://{{ domain }}{% url 'privacy_policy' %}" style="color: #4a5568; text-decoration: none; margin: 0 5px;">
+                {% trans "Privacy Policy" %}
+            </a> | 
+            <a href="{{ protocol }}://{{ domain }}{% url 'terms' %}" style="color: #4a5568; text-decoration: none; margin: 0 5px;">
+                {% trans "Terms of Service" %}
+            </a> | 
+            <a href="{{ protocol }}://{{ domain }}{% url 'contact' %}" style="color: #4a5568; text-decoration: none; margin: 0 5px;">
+                {% trans "Contact Us" %}
+            </a>
+        </p>
+        <p style="margin: 0; font-size: 12px; color: #a0aec0;">
+            {% trans "This is an automated message. Please do not reply to this email." %}
+        </p>
+    </div>
+</div>
+{% endblock %}

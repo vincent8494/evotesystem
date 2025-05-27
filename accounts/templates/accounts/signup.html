@@ -1,0 +1,293 @@
+{% extends 'base.html' %}
+{% load i18n crispy_forms_tags static %}
+
+{% block title %}{% trans 'Sign Up' %} - E-Vote{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-7">
+            <div class="card auth-card">
+                <div class="card-header text-center">
+                    <h2 class="mb-1">{% trans 'Create Your Account' %}</h2>
+                    <p class="mb-0 opacity-75">{% trans 'Join thousands of users who trust E-Vote for secure online voting' %}</p>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="auth-form" novalidate enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_first_name" class="form-label">First Name</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                    <input type="text" name="first_name" class="form-control form-control-lg {% if form.first_name.errors %}is-invalid{% endif %}" 
+                                           id="id_first_name" placeholder="John" required 
+                                           value="{{ form.first_name.value|default:'' }}">
+                                </div>
+                                {% if form.first_name.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.first_name.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="id_last_name" class="form-label">Last Name</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                    <input type="text" name="last_name" class="form-control form-control-lg {% if form.last_name.errors %}is-invalid{% endif %}" 
+                                           id="id_last_name" placeholder="Doe" required
+                                           value="{{ form.last_name.value|default:'' }}">
+                                </div>
+                                {% if form.last_name.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.last_name.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Email Field -->
+                        <div class="mb-3">
+                            <label for="id_email" class="form-label">Email Address</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                <input type="email" name="email" class="form-control form-control-lg {% if form.email.errors %}is-invalid{% endif %}" 
+                                       id="id_email" placeholder="your@email.com" required
+                                       value="{{ form.email.value|default:'' }}">
+                            </div>
+                            {% if form.email.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.email.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- User Type Field -->
+                        <div class="mb-3">
+                            <label for="id_user_type" class="form-label">I am a</label>
+                            <select name="user_type" class="form-select form-select-lg {% if form.user_type.errors %}is-invalid{% endif %}" 
+                                    id="id_user_type" required>
+                                <option value="" disabled selected>Select user type</option>
+                                <option value="voter" {% if form.user_type.value == 'voter' %}selected{% endif %}>Voter</option>
+                                <option value="candidate" {% if form.user_type.value == 'candidate' %}selected{% endif %}>Candidate</option>
+                            </select>
+                            {% if form.user_type.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.user_type.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Password Fields -->
+                        <div class="mb-3">
+                            <label for="id_password1" class="form-label">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                <input type="password" name="password1" class="form-control form-control-lg {% if form.password1.errors %}is-invalid{% endif %}" 
+                                       id="id_password1" placeholder="Create a strong password" required
+                                       value="{{ form.password1.value|default:'' }}">
+                            </div>
+                            <div class="form-text">
+                                <small>Your password must contain at least 8 characters.</small>
+                            </div>
+                            {% if form.password1.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.password1.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="id_password2" class="form-label">Confirm Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                <input type="password" name="password2" class="form-control form-control-lg {% if form.password2.errors %}is-invalid{% endif %}" 
+                                       id="id_password2" placeholder="Confirm your password" required
+                                       value="{{ form.password2.value|default:'' }}">
+                            </div>
+                            {% if form.password2.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.password2.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" id="terms" required>
+                            <label class="form-check-label" for="terms">
+                                I agree to the <a href="{% url 'terms' %}" target="_blank">Terms of Service</a> and 
+                                <a href="{% url 'privacy' %}" target="_blank">Privacy Policy</a>
+                            </label>
+                        </div>
+                        
+                        <div class="d-grid gap-2 mb-4">
+                            <button type="submit" class="btn btn-primary btn-lg btn-auth">
+                                <i class="fas fa-user-plus me-2"></i> Create Account
+                            </button>
+                        </div>
+                        
+                        <div class="divider">or sign up with</div>
+                        
+                        <div class="d-grid gap-2 mb-4">
+                            <a href="#" class="btn btn-google btn-social">
+                                <i class="fab fa-google me-2"></i> Sign up with Google
+                            </a>
+                            <a href="#" class="btn btn-facebook btn-social">
+                                <i class="fab fa-facebook-f me-2"></i> Sign up with Facebook
+                            </a>
+                        </div>
+                        
+                        <div class="auth-footer">
+                            <p class="mb-0">
+                                Already have an account? 
+                                <a href="{% url 'login' %}" class="fw-bold">Sign in</a>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Toggle password visibility
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle password visibility for all password fields
+    document.querySelectorAll('.toggle-password').forEach(function(button) {
+        button.addEventListener('click', function() {
+            const input = this.closest('.input-group').querySelector('input');
+            const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+            input.setAttribute('type', type);
+            this.querySelector('i').classList.toggle('fa-eye');
+            this.querySelector('i').classList.toggle('fa-eye-slash');
+        });
+    });
+    
+    // Password strength indicator
+    const password1 = document.getElementById('id_password1');
+    if (password1) {
+        password1.addEventListener('input', function() {
+            const password = this.value;
+            const strength = checkPasswordStrength(password);
+            updatePasswordStrengthMeter(strength);
+        });
+    }
+    
+    // Form validation
+    const form = document.querySelector('.auth-form');
+    if (form) {
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    }
+    
+    // Initialize tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+
+// Password strength checker
+function checkPasswordStrength(password) {
+    let strength = 0;
+    
+    // Length check
+    if (password.length >= 8) strength++;
+    if (password.length >= 12) strength++;
+    
+    // Contains numbers
+    if (/\d/.test(password)) strength++;
+    
+    // Contains lowercase letters
+    if (/[a-z]/.test(password)) strength++;
+    
+    // Contains uppercase letters
+    if (/[A-Z]/.test(password)) strength++;
+    
+    // Contains special characters
+    if (/[^A-Za-z0-9]/.test(password)) strength++;
+    
+    return Math.min(strength, 5); // Cap at 5 for the meter
+}
+
+// Update password strength meter
+function updatePasswordStrengthMeter(strength) {
+    let strengthText = '';
+    let strengthClass = '';
+    
+    switch(strength) {
+        case 0:
+        case 1:
+            strengthText = 'Very Weak';
+            strengthClass = 'danger';
+            break;
+        case 2:
+            strengthText = 'Weak';
+            strengthClass = 'warning';
+            break;
+        case 3:
+            strengthText = 'Moderate';
+            strengthClass = 'info';
+            break;
+        case 4:
+            strengthText = 'Strong';
+            strengthClass = 'primary';
+            break;
+        case 5:
+            strengthText = 'Very Strong';
+            strengthClass = 'success';
+            break;
+    }
+    
+    // Update or create the strength meter
+    let strengthMeter = document.getElementById('password-strength-meter');
+    if (!strengthMeter) {
+        const container = document.createElement('div');
+        container.className = 'mt-2';
+        container.innerHTML = `
+            <div class="progress" style="height: 5px;">
+                <div id="password-strength-meter" class="progress-bar" role="progressbar" style="width: ${strength * 20}%" 
+                     aria-valuenow="${strength * 20}" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <small id="password-strength-text" class="form-text"></small>
+        `;
+        password1.parentNode.insertBefore(container, password1.nextSibling);
+        strengthMeter = document.getElementById('password-strength-meter');
+    }
+    
+    // Update the meter
+    const meter = document.getElementById('password-strength-meter');
+    const text = document.getElementById('password-strength-text');
+    
+    if (meter && text) {
+        meter.style.width = `${strength * 20}%`;
+        meter.setAttribute('aria-valuenow', strength * 20);
+        meter.className = `progress-bar bg-${strengthClass}`;
+        text.textContent = `Password strength: ${strengthText}`;
+        text.className = `form-text text-${strengthClass}`;
+    }
+}
+</script>
+{% endblock %}

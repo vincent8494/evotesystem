@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+{% block title %}{% if form.instance.pk %}{% trans 'Update Election' %}{% else %}{% trans 'Create Election' %}{% endif %} | {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2>{% if form.instance.pk %}{% trans 'Update Election' %}{% else %}{% trans 'Create New Election' %}{% endif %}</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3">
+                            <a href="{% url 'voting:election_list' %}" class="btn btn-secondary me-md-2">
+                                <i class="bi bi-arrow-left"></i> {% trans 'Cancel' %}
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> {% if form.instance.pk %}{% trans 'Update' %}{% else %}{% trans 'Create' %}{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Initialize datetime pickers if needed
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add any client-side validation or UI enhancements here
+    });
+</script>
+{% endblock %}

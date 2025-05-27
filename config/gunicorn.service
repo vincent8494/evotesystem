@@ -1,0 +1,20 @@
+[Unit]
+Description=Gunicorn service for electionsproject
+After=network.target
+
+[Service]
+User=fetty
+Group=www-data
+WorkingDirectory=/home/fetty/electionsproject
+Environment="PATH=/home/fetty/electionsproject/venv/bin"
+ExecStart=/home/fetty/electionsproject/venv/bin/gunicorn \
+    --workers 3 \
+    --bind unix:/run/electionsproject.sock \
+    --log-level=info \
+    --access-logfile - \
+    --error-logfile - \
+    config.wsgi:application
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

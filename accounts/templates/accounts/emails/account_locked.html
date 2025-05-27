@@ -1,0 +1,47 @@
+{% extends "accounts/emails/base.html" %}
+{% load i18n %}
+
+{% block content %}
+  <tr>
+    <td style="padding: 24px;">
+      <p style="margin: 0 0 16px;">
+        {% blocktrans with name=user.get_short_name %}Hello {{ name }},{% endblocktrans %}
+      </p>
+      <p style="margin: 0 0 16px; color: #D32F2F; font-weight: 500;">
+        {% trans "We've detected too many failed login attempts for your account, and it has been temporarily locked for security reasons." %}
+      </p>
+      <p style="margin: 0 0 16px;">
+        {% trans "For your protection, your account will be locked for 30 minutes. After this period, you can try logging in again." %}
+      </p>
+      <p style="margin: 0 0 16px;">
+        {% trans "If this was you, you can:" %}
+      </p>
+      <ol style="margin: 0 0 16px 16px; padding-left: 16px;">
+        <li>{% trans "Wait 30 minutes and try logging in again" %}</li>
+        <li>{% trans "Use the 'Forgot Password' option if you can't remember your password" %}</li>
+      </ol>
+      <p style="margin: 0 0 16px;">
+        {% trans "If you didn't attempt to log in, please:" %}
+      </p>
+      <ol style="margin: 0 0 16px 16px; padding-left: 16px;">
+        <li>{% trans "Change your password immediately using the link below" %}</li>
+        <li>{% trans "Enable two-factor authentication for added security" %}</li>
+        <li>{% trans "Contact our support team if you need assistance" %}</li>
+      </ol>
+      <table border="0" cellspacing="0" cellpadding="0" style="margin: 24px 0;">
+        <tr>
+          <td align="center" bgcolor="#2196F3" style="border-radius: 4px;">
+            <a href="{{ protocol }}://{{ domain }}{% url 'accounts:password_reset' %}"
+               style="display: inline-block; padding: 12px 24px; font-family: Arial, sans-serif; font-size: 16px; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: bold;">
+              {% trans "Reset Your Password" %}
+            </a>
+          </td>
+        </tr>
+      </table>
+      <p style="margin: 0 0 16px; color: #757575; font-size: 14px;">
+        {% trans "This is an automated security measure. If you believe this was done in error, please contact our support team at" %} 
+        <a href="mailto:{{ support_email }}" style="color: #1976D2;">{{ support_email }}</a>.
+      </p>
+    </td>
+  </tr>
+{% endblock %}

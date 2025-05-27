@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}{% trans 'Verification Failed' %}{% endblock %}
+
+{% block page_title %}{% trans 'Verification Failed' %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-body p-4 text-center">
+                <div class="mb-4">
+                    <i class="bi bi-exclamation-octagon display-4 text-danger"></i>
+                </div>
+                
+                <h2 class="h4 mb-3">{% trans 'Verification Failed' %}</h2>
+                
+                <div class="alert alert-danger">
+                    <p class="mb-0">
+                        {% if error == 'invalid' %}
+                            {% trans 'The verification link is invalid. Please check the link and try again.' %}
+                        {% elif error == 'expired' %}
+                            {% trans 'The verification link has expired. Please request a new verification email.' %}
+                        {% elif error == 'already_verified' %}
+                            {% trans 'This account has already been verified. Please log in to continue.' %}
+                        {% else %}
+                            {% trans 'An error occurred during verification. Please try again later.' %}
+                        {% endif %}
+                    </p>
+                </div>
+                
+                <p class="text-muted mb-4">
+                    {% if error == 'expired' or error == 'invalid' %}
+                        {% trans 'You can request a new verification email using the button below.' %}
+                    {% else %}
+                        {% trans 'If you continue to experience issues, please contact our support team.' %}
+                    {% endif %}
+                </p>
+                
+                <div class="d-grid gap-2 col-md-8 mx-auto">
+                    {% if error == 'expired' or error == 'invalid' %}
+                        <a href="{% url 'accounts:resend_verification' %}" class="btn btn-primary">
+                            <i class="bi bi-envelope"></i> {% trans 'Resend Verification Email' %}
+                        </a>
+                    {% endif %}
+                    
+                    <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-house"></i> {% trans 'Return to Homepage' %}
+                    </a>
+                </div>
+                
+                <hr class="my-4">
+                
+                <p class="mb-0">
+                    {% trans 'Need help?' %}
+                    <a href="{% url 'contact' %}" class="fw-bold text-decoration-none ms-1">
+                        {% trans 'Contact Support' %}
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

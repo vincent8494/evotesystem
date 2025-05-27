@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}{% trans 'Email Verification Failed' %}{% endblock %}
+
+{% block page_title %}{% trans 'Email Verification Failed' %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-body p-4 text-center">
+                <div class="mb-4">
+                    <i class="bi bi-exclamation-triangle display-4 text-danger"></i>
+                </div>
+                
+                <h2 class="h4 mb-3">{% trans 'Email Verification Failed' %}</h2>
+                
+                <div class="alert alert-danger">
+                    <p class="mb-0">
+                        {% if error == 'invalid' %}
+                            {% trans 'The verification link is invalid. Please check the link and try again.' %}
+                        {% elif error == 'expired' %}
+                            {% trans 'The verification link has expired. Please request a new verification email.' %}
+                        {% else %}
+                            {% trans 'An error occurred while verifying your email. Please try again later.' %}
+                        {% endif %}
+                    </p>
+                </div>
+                
+                <p class="text-muted mb-4">
+                    {% trans "If you're having trouble verifying your email, you can request a new verification link below." %}
+                </p>
+                
+                <div class="d-grid gap-2 col-md-8 mx-auto">
+                    <a href="{% url 'accounts:resend_verification' %}" class="btn btn-primary">
+                        <i class="bi bi-envelope"></i> {% trans 'Resend Verification Email' %}
+                    </a>
+                </div>
+                
+                <hr class="my-4">
+                
+                <p class="mb-0">
+                    {% trans 'Return to' %}
+                    <a href="{% url 'home' %}" class="fw-bold text-decoration-none ms-1">
+                        {% trans 'Homepage' %}
+                    </a>
+                    {% if not user.is_authenticated %}
+                        <span class="mx-2">|</span>
+                        <a href="{% url 'accounts:login' %}" class="fw-bold text-decoration-none">
+                            {% trans 'Log In' %}
+                        </a>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

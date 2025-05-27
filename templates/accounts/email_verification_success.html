@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}{% trans 'Email Verified' %}{% endblock %}
+
+{% block page_title %}{% trans 'Email Verification Successful' %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-body p-4 text-center">
+                <div class="mb-4">
+                    <i class="bi bi-check-circle display-4 text-success"></i>
+                </div>
+                
+                <h2 class="h4 mb-3">{% trans 'Email Verified Successfully!' %}</h2>
+                
+                <p class="text-muted mb-4">
+                    {% trans 'Thank you for verifying your email address. Your account is now active and ready to use.' %}
+                </p>
+                
+                {% if user.is_authenticated %}
+                    <div class="d-grid gap-2 col-md-8 mx-auto">
+                        <a href="{% url 'accounts:dashboard' %}" class="btn btn-primary">
+                            <i class="bi bi-speedometer2"></i> {% trans 'Go to Dashboard' %}
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="d-grid gap-2 col-md-8 mx-auto">
+                        <a href="{% url 'accounts:login' %}" class="btn btn-primary">
+                            <i class="bi bi-box-arrow-in-right"></i> {% trans 'Log In' %}
+                        </a>
+                    </div>
+                {% endif %}
+                
+                <hr class="my-4">
+                
+                <p class="mb-0">
+                    {% trans 'Return to' %}
+                    <a href="{% url 'home' %}" class="fw-bold text-decoration-none ms-1">
+                        {% trans 'Homepage' %}
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

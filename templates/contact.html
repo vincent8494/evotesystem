@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% load static i18n crispy_forms_tags %}
+
+{% block title %}{% trans 'Contact Us' %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-primary text-white py-5">
+    <div class="container py-4">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-4 fw-bold mb-3">{% trans 'Contact Us' %}</h1>
+                <p class="lead">{% trans 'We\'re here to help and answer any questions you might have' %}</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Form Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4 p-md-5">
+                        <div class="text-center mb-5">
+                            <h2 class="fw-bold mb-3">{% trans 'Send Us a Message' %}</h2>
+                            <p class="text-muted">{% trans 'Fill out the form below and we\'ll get back to you as soon as possible' %}</p>
+                        </div>
+
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <form method="post" class="needs-validation" novalidate>
+                            {% csrf_token %}
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="name" class="form-label">{% trans 'Your Name' %} <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="name" name="name" required>
+                                        <div class="invalid-feedback">
+                                            {% trans 'Please enter your name.' %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="email" class="form-label">{% trans 'Email Address' %} <span class="text-danger">*</span></label>
+                                        <input type="email" class="form-control" id="email" name="email" required>
+                                        <div class="invalid-feedback">
+                                            {% trans 'Please enter a valid email address.' %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label for="subject" class="form-label">{% trans 'Subject' %} <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="subject" name="subject" required>
+                                        <div class="invalid-feedback">
+                                            {% trans 'Please enter a subject.' %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label for="message" class="form-label">{% trans 'Your Message' %} <span class="text-danger">*</span></label>
+                                        <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
+                                        <div class="invalid-feedback">
+                                            {% trans 'Please enter your message.' %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="privacyPolicy" required>
+                                        <label class="form-check-label" for="privacyPolicy">
+                                            {% trans 'I agree to the' %} <a href="{% url 'privacy' %}">{% trans 'Privacy Policy' %}</a> {% trans 'and' %} <a href="{% url 'terms' %}">{% trans 'Terms of Service' %}</a>.
+                                        </label>
+                                        <div class="invalid-feedback">
+                                            {% trans 'You must agree before submitting.' %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 mt-4">
+                                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                                        <i class="bi bi-send-fill me-2"></i> {% trans 'Send Message' %}
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Info Section -->
+<section class="bg-light py-5">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card border-0 text-center h-100">
+                    <div class="card-body p-4">
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                            <i class="bi bi-geo-alt fs-3 text-primary"></i>
+                        </div>
+                        <h5 class="card-title fw-bold">{% trans 'Our Location' %}</h5>
+                        <p class="text-muted mb-0">123 Election Street<br>Voting City, VC 12345<br>Country</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 text-center h-100">
+                    <div class="card-body p-4">
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                            <i class="bi bi-envelope fs-3 text-primary"></i>
+                        </div>
+                        <h5 class="card-title fw-bold">{% trans 'Email Us' %}</h5>
+                        <p class="text-muted mb-0">
+                            <a href="mailto:support@evote.example.com" class="text-decoration-none">support@evote.example.com</a><br>
+                            <a href="mailto:info@evote.example.com" class="text-decoration-none">info@evote.example.com</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 text-center h-100">
+                    <div class="card-body p-4">
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                            <i class="bi bi-clock fs-3 text-primary"></i>
+                        </div>
+                        <h5 class="card-title fw-bold">{% trans 'Working Hours' %}</h5>
+                        <p class="text-muted mb-0">
+                            {% trans 'Monday - Friday: 9:00 AM - 5:00 PM' %}<br>
+                            {% trans 'Saturday: 10:00 AM - 2:00 PM' %}<br>
+                            {% trans 'Sunday: Closed' %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Map Section -->
+<section class="py-0">
+    <div class="container-fluid p-0">
+        <div class="ratio ratio-21x9">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.2152091790147!2d-73.98784492425035!3d40.75798597133292!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDDCsDQ1JzI4LjciTiA3M8KwNTknMTQuMiJX!5e0!3m2!1sen!2sus!4v1620000000000!5m2!1sen!2sus" 
+                    style="border:0;" allowfullscreen="" loading="lazy" class="w-100"></iframe>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="bg-primary text-white py-5">
+    <div class="container text-center py-4">
+        <h2 class="fw-bold mb-4">{% trans 'Have More Questions?' %}</h2>
+        <p class="lead mb-4">{% trans 'Check out our FAQ or get in touch with our support team' %}</p>
+        <a href="{% url 'faq' %}" class="btn btn-light btn-lg px-4 me-2">
+            <i class="bi bi-question-circle me-2"></i> {% trans 'View FAQ' %}
+        </a>
+        <a href="mailto:support@evote.example.com" class="btn btn-outline-light btn-lg px-4">
+            <i class="bi bi-headset me-2"></i> {% trans 'Support Center' %}
+        </a>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Form validation
+    (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+            // Fetch all the forms we want to apply custom Bootstrap validation styles to
+            var forms = document.getElementsByClassName('needs-validation');
+            
+            // Loop over them and prevent submission
+            var validation = Array.prototype.filter.call(forms, function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+
+    // Auto-resize textarea
+    document.addEventListener('DOMContentLoaded', function() {
+        const textarea = document.getElementById('message');
+        if (textarea) {
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+        }
+    });
+</script>
+{% endblock %}

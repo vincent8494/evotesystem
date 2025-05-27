@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Activation Error - E-Vote{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h2>Activation Error</h2>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-exclamation-triangle fa-5x text-danger mb-3"></i>
+                        <h3>Activation Failed</h3>
+                    </div>
+                    
+                    <p class="lead">We couldn't activate your account.</p>
+                    <p>The activation link is invalid or has expired.</p>
+                    
+                    <div class="alert alert-warning mt-4">
+                        <h5>What to do next?</h5>
+                        <ul class="list-unstyled">
+                            <li>Make sure you're using the most recent activation email</li>
+                            <li>If the link has expired, request a new activation email</li>
+                            <li>Try copying and pasting the URL directly into your browser</li>
+                        </ul>
+                        <div class="mt-3">
+                            <a href="{% url 'accounts:resend_activation' %}" class="btn btn-warning">
+                                Request New Activation Email
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <p>Need help? <a href="{% url 'contact' %}">Contact our support team</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

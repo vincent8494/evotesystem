@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% load i18n voting_tags %}
+
+{% block title %}{% trans 'Elections' %}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">{% trans 'Elections' %}</h1>
+        {% if perms.voting.can_manage_election %}
+            <a href="{% url 'voting:election_create' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-1"></i> {% trans 'New Election' %}
+            </a>
+        {% endif %}
+    </div>
+
+    <!-- Status Filter -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="d-flex flex-wrap align-items-center">
+                <span class="me-2">{% trans 'Filter by status:' %}</span>
+                <div class="btn-group btn-group-sm" role="group">
+                    <a href="?" class="btn btn-outline-secondary {% if not request.GET.status %}active{% endif %}">
+                        {% trans 'All' %}
+                    </a>
+                    <a href="?status=active" 
+                       class="btn btn-outline-success {% if request.GET.status == 'active' %}active{% endif %}">
+                        {% trans 'Active' %}
+                    </a>
+                    <a href="?status=upcoming" 
+                       class="btn btn-outline-primary {% if request.GET.status == 'upcoming' %}active{% endif %}">
+                        {% trans 'Upcoming' %}
+                    </a>
+                    <a href="?status=completed" 
+                       class="btn btn-outline-secondary {% if request.GET.status == 'completed' %}active{% endif %}">
+                        {% trans 'Completed' %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Elections List -->
+    <div class="row">
+        {% if elections %}
+            {% for election in elections %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ election.name }}</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">
+                                <span class="badge bg-{% if election.status == 'active' %}success{% elif election.status == 'completed' %}secondary{% else %}warning{% endif %}">
+                                    {{ election.get_status_display }}
+                                </span>
+                            </h6>
+                            <p class="card-text">{{ election.description|truncatewords:20 }}</p>
+                            <div class="mb-2">
+                                <small class="text-muted">
+                                    <i class="bi bi-calendar-event"></i> 
+                                    {{ election.start_date|date:"M d, Y H:i" }} - {{ election.end_date|date:"M d, Y H:i" }}
+                                </small>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <a href="{% url 'voting:election_detail' election.pk %}" class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-eye"></i> {% trans 'View Details' %}
+                            </a>
+                            {% if perms.voting.can_manage_election %}
+                                <a href="{% url 'voting:election_update' election.pk %}" class="btn btn-outline-secondary btn-sm">
+                                    <i class="bi bi-pencil"></i> {% trans 'Edit' %}
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> 
+                    {% trans 'No elections found.' %}
+                    {% if perms.voting.can_manage_election %}
+                        <a href="{% url 'voting:election_create' %}" class="alert-link">
+                            {% trans 'Create your first election' %}
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Election list page loaded');
+    });
+</script>
+{% endblock %}

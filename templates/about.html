@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+
+{% block title %}{% trans 'About Us' %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-primary text-white py-5">
+    <div class="container py-4">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-4 fw-bold mb-3">{% trans 'About E-Vote' %}</h1>
+                <p class="lead">{% trans 'Secure, transparent, and accessible online voting for everyone' %}</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Mission Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <h2 class="fw-bold mb-4">{% trans 'Our Mission' %}</h2>
+                <p class="lead text-muted">
+                    {% blocktrans %}
+                    E-Vote is dedicated to revolutionizing the democratic process by providing a secure, accessible, 
+                    and transparent online voting platform for organizations, institutions, and communities worldwide.
+                    {% endblocktrans %}
+                </p>
+                <p class="mb-0">
+                    {% blocktrans %}
+                    We believe in empowering every eligible voter to participate in elections and decision-making 
+                    processes with confidence, convenience, and trust in the integrity of the results.
+                    {% endblocktrans %}
+                </p>
+            </div>
+            <div class="col-lg-6">
+                <img src="{% static 'img/voting-illustration.svg' %}" alt="Voting Illustration" class="img-fluid rounded-3 shadow">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="bg-light py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">{% trans 'Key Features' %}</h2>
+            <p class="lead text-muted">{% trans 'Everything you need for secure and reliable online voting' %}</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="bi bi-shield-lock fs-1 text-primary"></i>
+                        </div>
+                        <h5 class="card-title fw-bold">{% trans 'Military-Grade Security' %}</h5>
+                        <p class="card-text text-muted">
+                            {% trans 'End-to-end encryption and blockchain technology ensure the highest level of security for every vote.' %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="bi bi-people fs-1 text-primary"></i>
+                        </div>
+                        <h5 class="card-title fw-bold">{% trans 'Voter Verification' %}</h5>
+                        <p class="card-text text-muted">
+                            {% trans 'Advanced identity verification ensures that only eligible voters can participate in each election.' %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="bi bi-graph-up fs-1 text-primary"></i>
+                        </div>
+                        <h5 class="card-title fw-bold">{% trans 'Real-time Results' %}</h5>
+                        <p class="card-text text-muted">
+                            {% trans 'Monitor election progress and view results in real-time with our comprehensive analytics dashboard.' %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Team Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">{% trans 'Our Team' %}</h2>
+            <p class="lead text-muted">{% trans 'Passionate experts dedicated to secure online voting' %}</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card border-0 text-center h-100">
+                    <div class="card-body p-4">
+                        <div class="mx-auto mb-3" style="width: 120px; height: 120px; border-radius: 50%; background-color: #e9ecef;">
+                            <i class="bi bi-person-fill fs-1 text-muted d-flex align-items-center justify-content-center h-100"></i>
+                        </div>
+                        <h5 class="card-title fw-bold mb-1">{% trans 'John Doe' %}</h5>
+                        <p class="text-muted mb-3">{% trans 'CEO & Co-Founder' %}</p>
+                        <p class="card-text text-muted small">
+                            {% trans 'Security expert with over 15 years of experience in cryptographic systems and secure voting solutions.' %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card border-0 text-center h-100">
+                    <div class="card-body p-4">
+                        <div class="mx-auto mb-3" style="width: 120px; height: 120px; border-radius: 50%; background-color: #e9ecef;">
+                            <i class="bi bi-person-fill fs-1 text-muted d-flex align-items-center justify-content-center h-100"></i>
+                        </div>
+                        <h5 class="card-title fw-bold mb-1">{% trans 'Jane Smith' %}</h5>
+                        <p class="text-muted mb-3">{% trans 'CTO & Co-Founder' %}</p>
+                        <p class="card-text text-muted small">
+                            {% trans 'Software architect specializing in scalable, secure web applications and blockchain technology.' %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card border-0 text-center h-100">
+                    <div class="card-body p-4">
+                        <div class="mx-auto mb-3" style="width: 120px; height: 120px; border-radius: 50%; background-color: #e9ecef;">
+                            <i class="bi bi-people-fill fs-1 text-muted d-flex align-items-center justify-content-center h-100"></i>
+                        </div>
+                        <h5 class="card-title fw-bold mb-1">{% trans 'Our Team' %}</h5>
+                        <p class="text-muted mb-3">{% trans 'Dedicated Professionals' %}</p>
+                        <p class="card-text text-muted small">
+                            {% trans 'A diverse team of developers, designers, and security experts working together to build the future of digital democracy.' %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="bg-primary text-white py-5">
+    <div class="container text-center py-4">
+        <h2 class="fw-bold mb-4">{% trans 'Ready to experience secure online voting?' %}</h2>
+        <p class="lead mb-4">{% trans 'Join thousands of organizations that trust E-Vote for their elections' %}</p>
+        {% if user.is_authenticated %}
+            <a href="{% url 'accounts:dashboard' %}" class="btn btn-light btn-lg px-4 me-2">
+                {% trans 'Go to Dashboard' %}
+            </a>
+        {% else %}
+            <a href="{% url 'accounts:signup' %}" class="btn btn-light btn-lg px-4 me-2">
+                {% trans 'Get Started for Free' %}
+            </a>
+            <a href="{% url 'contact' %}" class="btn btn-outline-light btn-lg px-4">
+                {% trans 'Contact Us' %}
+            </a>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Any additional JavaScript specific to the about page
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add any about page specific JavaScript here
+    });
+</script>
+{% endblock %}

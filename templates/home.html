@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+
+{% block extra_css %}
+<style>
+    /* Hero Section */
+    .hero-section {
+        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+        color: white;
+        padding: 6rem 0;
+        margin-bottom: 3rem;
+    }
+    
+    .hero-title {
+        font-size: 3.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.5rem;
+        font-weight: 300;
+        margin-bottom: 2rem;
+        opacity: 0.9;
+    }
+    
+    /* Feature Cards */
+    .feature-card {
+        background: white;
+        border-radius: 0.5rem;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 2rem 0 rgba(58, 59, 69, 0.2);
+    }
+    
+    .feature-icon {
+        font-size: 2.5rem;
+        color: var(--primary);
+        margin-bottom: 1.5rem;
+    }
+    
+    .feature-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--secondary);
+    }
+    
+    .feature-text {
+        color: #6c757d;
+    }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 2.5rem;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.25rem;
+        }
+        
+        .btn, .btn-outline-light {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container text-center">
+        <h1 class="hero-title">{% trans 'Secure Online Voting Platform' %}</h1>
+        <p class="hero-subtitle">{% trans 'Cast your vote from anywhere, anytime with our secure and transparent voting system' %}</p>
+        <div class="mt-4">
+            {% if user.is_authenticated %}
+                <a href="{% url 'accounts:dashboard' %}" class="btn btn-light btn-lg">{% trans 'Go to Dashboard' %}</a>
+            {% else %}
+                <a href="{% url 'accounts:signup' %}" class="btn btn-light btn-lg">{% trans 'Get Started' %}</a>
+                <a href="{% url 'about' %}" class="btn btn-outline-light btn-lg">{% trans 'Learn More' %}</a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Main Content -->
+<main class="container">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold mb-3">{% trans 'Why Choose Our Voting Platform?' %}</h2>
+        <p class="lead text-muted">{% trans 'Experience the future of secure and convenient voting' %}</p>
+    </div>
+    
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-shield-lock"></i>
+                </div>
+                <h3 class="feature-title">{% trans 'Secure & Private' %}</h3>
+                <p class="feature-text">{% trans 'Your vote is encrypted and anonymous. We use advanced security measures to ensure the integrity of every vote.' %}</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-phone"></i>
+                </div>
+                <h3 class="feature-title">{% trans 'Easy to Use' %}</h3>
+                <p class="feature-text">{% trans 'Simple and intuitive interface that works on any device. Cast your vote in just a few clicks.' %}</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-graph-up"></i>
+                </div>
+                <h3 class="feature-title">{% trans 'Real-time Results' %}</h3>
+                <p class="feature-text">{% trans 'View live results and statistics as votes are cast. Transparent and verifiable election outcomes.' %}</p>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Call to Action -->
+<section class="bg-light py-5 my-5">
+    <div class="container text-center">
+        <h2 class="mb-4">{% trans 'Ready to cast your vote?' %}</h2>
+        <p class="lead mb-4">{% trans 'Join thousands of users who trust our secure voting platform' %}</p>
+        {% if user.is_authenticated %}
+            <a href="{% url 'accounts:dashboard' %}" class="btn btn-primary btn-lg px-4">{% trans 'Go to Dashboard' %}</a>
+        {% else %}
+            <a href="{% url 'accounts:signup' %}" class="btn btn-primary btn-lg px-4">{% trans 'Create Free Account' %}</a>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Any additional JavaScript specific to the home page
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add any home page specific JavaScript here
+    });
+</script>
+{% endblock %}

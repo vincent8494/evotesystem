@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% trans 'Resend Activation Email' %}{% endblock %}
+
+{% block page_title %}{% trans 'Resend Activation Email' %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <i class="bi bi-envelope-arrow-up display-4 text-primary"></i>
+                    <h2 class="h4 mt-3">{% trans 'Resend Activation Email' %}</h2>
+                    <p class="text-muted">
+                        {% trans 'Enter your email address and we\'ll send you a new activation link.' %}
+                    </p>
+                </div>
+                
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        {{ form.email|as_crispy_field }}
+                        <div class="form-text">
+                            {% trans 'Enter the email address you used to create your account.' %}
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-envelope"></i> {% trans 'Resend Activation Email' %}
+                        </button>
+                    </div>
+                </form>
+                
+                <hr class="my-4">
+                
+                <div class="text-center">
+                    <p class="mb-1">{% trans 'Already activated your account?' %}</p>
+                    <a href="{% url 'accounts:login' %}" class="fw-bold text-decoration-none">
+                        <i class="bi bi-box-arrow-in-right"></i> {% trans 'Log In' %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

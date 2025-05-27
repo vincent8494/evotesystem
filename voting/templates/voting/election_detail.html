@@ -1,0 +1,856 @@
+{% extends 'base.html' %}
+{% load i18n voting_tags static %}
+
+{% block title %}{% trans 'Election Details' %}{% endblock %}
+
+{% block breadcrumbs %}
+    <li class="breadcrumb-item"><a href="{% url 'voting:election_list' %}">{% trans 'Elections' %}</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{{ election.name|truncatechars:30 }}</li>
+{% endblock %}
+
+{% block page_actions %}
+    {% if request.user|can_manage_election:election %}
+        <div class="dropdown">
+            <button class="btn btn-outline-primary dropdown-toggle" type="button" id="electionActions" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-cog me-1"></i> {% trans 'Actions' %}
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="electionActions">
+                <li>
+                    <a class="dropdown-item" href="{% url 'voting:election_update' election.pk %}">
+                        <i class="fas fa-edit me-1"></i> {% trans 'Edit Election' %}
+                    </a>
+                </li>
+                {% if election.status == 'draft' %}
+                    <li>
+                        <a class="dropdown-item text-success" href="#" 
+                           hx-post="{% url 'voting:election_publish' election.pk %}"
+                           hx-confirm="{% trans 'Are you sure you want to publish this election?' %}">
+                            <i class="fas fa-paper-plane me-1"></i> {% trans 'Publish' %}
+                        </a>
+                    </li>
+                {% elif election.status == 'published' %}
+                    <li>
+                        <a class="dropdown-item text-success" href="#" 
+                           hx-post="{% url 'voting:election_activate' election.pk %}"
+                           hx-confirm="{% trans 'Are you sure you want to activate this election?' %}">
+                            <i class="fas fa-play me-1"></i> {% trans 'Activate' %}
+                        </a>
+                    </li>
+                {% elif election.status == 'active' %}
+                    <li>
+                        <a class="dropdown-item text-warning" href="#" 
+                           hx-post="{% url 'voting:election_complete' election.pk %}"
+                           hx-confirm="{% trans 'Are you sure you want to complete this election?' %}">
+                            <i class="fas fa-flag-checkered me-1"></i> {% trans 'Complete' %}
+                        </a>
+                    </li>
+                {% endif %}
+                {% if election.status != 'completed' and election.status != 'cancelled' %}
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item text-danger" href="#" 
+                           hx-post="{% url 'voting:election_cancel' election.pk %}"
+                           hx-confirm="{% trans 'Are you sure you want to cancel this election?' %}">
+                            <i class="fas fa-times me-1"></i> {% trans 'Cancel' %}
+                        </a>
+                    </li>
+                {% endif %}
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <a class="dropdown-item text-danger" href="#" 
+                       data-bs-toggle="modal" data-bs-target="#deleteElectionModal">
+                        <i class="fas fa-trash-alt me-1"></i> {% trans 'Delete' %}
+                    </a>
+                </li>
+            </ul>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center 
+            {% if election.status == 'active' %}bg-success text-white
+            {% elif election.status == 'published' %}bg-primary text-white
+            {% elif election.status == 'completed' %}bg-secondary text-white
+            {% elif election.status == 'cancelled' %}bg-danger text-white
+            {% else %}bg-warning text-dark{% endif %}">
+            <h1 class="h3 mb-0">
+                <i class="fas fa-vote-yea me-2"></i>
+                {{ election.name }}
+            </h1>
+            
+            <!-- View Results Button -->
+            <a href="{% url 'voting:election_results' election.pk %}" 
+               class="btn btn-light btn-sm">
+                <i class="fas fa-chart-bar me-1"></i> {% trans 'View Results' %}
+            </a>
+            <span class="badge bg-{% if election.status == 'active' %}light text-success
+                {% elif election.status == 'published' %}light text-primary
+                {% elif election.status == 'completed' %}light text-secondary
+                {% else %}light text-dark{% endif %} fs-6">
+                {{ election.get_status_display }}
+            </span>
+        </div>
+        
+        <div class="card-body">
+            <!-- Description -->
+            {% if election.description %}
+                <div class="mb-4">
+                    <h4 class="mb-3">
+                        <i class="fas fa-info-circle me-2"></i>{% trans 'Description' %}
+                    </h4>
+                    <div class="ps-4">
+                        {{ election.description|linebreaksbr }}
+                    </div>
+                </div>
+            {% endif %}
+            
+            <!-- Election Timeline -->
+            <div class="mb-4">
+                <h4 class="mb-3">
+                    <i class="fas fa-calendar-alt me-2"></i>{% trans 'Election Timeline' %}
+                </h4>
+                <div class="ps-4">
+                    <div class="mb-2">
+                        <strong>{% trans 'Starts' %}:</strong>
+                        {{ election.start_date|date:"F j, Y H:i" }}
+                    </div>
+                    <div class="mb-2">
+                        <strong>{% trans 'Ends' %}:</strong>
+                        {{ election.end_date|date:"F j, Y H:i" }}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Positions and Candidates -->
+            <div class="mb-4">
+                <h4 class="mb-3">
+                    <i class="fas fa-list-ol me-2"></i>{% trans 'Positions & Candidates' %}
+                </h4>
+                
+                {% if has_approved_candidates %}
+                    {% for item in positions_with_candidates %}
+                        {% if item.candidates %}
+                            <div class="card mb-3">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">{{ item.position.title }}</h5>
+                                    {% if item.position.description %}
+                                        <p class="mb-0 small text-muted">{{ item.position.description }}</p>
+                                    {% endif %}
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        {% for candidate in item.candidates %}
+                                            <div class="col-md-4 mb-3">
+                                                <div class="card h-100">
+                                                    {% if candidate.photo %}
+                                                        <img src="{{ candidate.photo.url }}" 
+                                                             class="card-img-top" 
+                                                             alt="{{ candidate.user.get_full_name|default:candidate.user.username }}"
+                                                             style="height: 200px; object-fit: cover;">
+                                                    {% else %}
+                                                        <div class="text-center py-4 bg-light">
+                                                            <i class="fas fa-user-circle fa-5x text-muted"></i>
+                                                        </div>
+                                                    {% endif %}
+                                                    <div class="card-body">
+                                                        <h6 class="card-title">
+                                                            {{ candidate.user.get_full_name|default:candidate.user.username }}
+                                                        </h6>
+                                                        {% if candidate.bio %}
+                                                            <p class="card-text small">
+                                                                {{ candidate.bio|truncatewords:20|linebreaksbr }}
+                                                            </p>
+                                                        {% endif %}
+                                                        {% if candidate.manifesto %}
+                                                            <a href="#" class="btn btn-sm btn-outline-primary mt-2" 
+                                                               data-bs-toggle="modal" data-bs-target="#manifestoModal{{ candidate.id }}">
+                                                                <i class="fas fa-scroll me-1"></i> {% trans 'View Manifesto' %}
+                                                            </a>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Manifesto Modal -->
+                                            {% if candidate.manifesto %}
+                                                <div class="modal fade" id="manifestoModal{{ candidate.id }}" tabindex="-1" aria-hidden="true">
+                                                    <div class="modal-dialog modal-lg">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title">
+                                                                    {{ candidate.user.get_full_name|default:candidate.user.username }}'s Manifesto
+                                                                </h5>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                {{ candidate.manifesto|linebreaks }}
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                                    {% trans 'Close' %}
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        {% trans 'No approved candidates have been added for any positions in this election yet.' %}
+                        {% if is_election_manager %}
+                            <div class="mt-2">
+                                <a href="{% url 'voting:position_create' election_id=election.id %}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-plus me-1"></i> {% trans 'Add Position' %}
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="row">
+                <!-- Election Details -->
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="fas fa-info-circle me-2"></i>{% trans 'Election Details' %}
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <dl class="row mb-0">
+                                <dt class="col-sm-5">{% trans 'Status' %}:</dt>
+                                <dd class="col-sm-7">
+                                    <span class="badge {% if election.status == 'active' %}bg-success
+                                    {% elif election.status == 'published' %}bg-primary
+                                    {% elif election.status == 'completed' %}bg-secondary
+                                    {% elif election.status == 'cancelled' %}bg-danger
+                                    {% else %}bg-warning text-dark{% endif %}">
+                                        {{ election.get_status_display }}
+                                    </span>
+                                </dd>
+                                
+                                <dt class="col-sm-5">{% trans 'Starts' %}:</dt>
+                                <dd class="col-sm-7">
+                                    <i class="far fa-calendar-alt me-1"></i> {{ election.start_date|date:"M d, Y H:i" }}
+                                    {% if election.status == 'upcoming' %}
+                                        <div class="text-muted small">({{ election.start_date|timeuntil }})</div>
+                                    {% endif %}
+                                </dd>
+                                
+                                <dt class="col-sm-5">{% trans 'Ends' %}:</dt>
+                                <dd class="col-sm-7">
+                                    <i class="far fa-calendar-check me-1"></i> {{ election.end_date|date:"M d, Y H:i" }}
+                                    {% if election.status == 'active' %}
+                                        <dd class="col-sm-7">
+                                    <i class="fas fa-user me-1"></i>
+                                    {{ election.created_by.get_full_name|default:election.created_by.username }}
+                                    <div class="text-muted small">
+                                        <i class="far fa-clock me-1"></i>
+                                        {{ election.created_at|date:"M d, Y" }}
+                                    </div>
+                                </dd>
+                                
+                                {% if election.managers.exists %}
+                                    <dt class="col-sm-5">{% trans 'Election Managers' %}:</dt>
+                                    <dd class="col-sm-7">
+                                        <div class="d-flex flex-wrap gap-1">
+                                            {% for manager in election.managers.all %}
+                                                <span class="badge bg-light text-dark">
+                                                    <i class="fas fa-user-shield me-1"></i>
+                                                    {{ manager.get_full_name|default:manager.username }}
+                                                </span>
+                                            {% endfor %}
+                                        </div>
+                                    </dd>
+                                {% endif %}
+                                
+                                {% if election.voters.exists %}
+                                    <dt class="col-sm-5">{% trans 'Eligible Voters' %}:</dt>
+                                    <dd class="col-sm-7">
+                                        <span class="badge bg-light text-dark">
+                                            <i class="fas fa-users me-1"></i>
+                                            {{ election.voters.count }} {% trans 'voters' %}
+                                        </span>
+                                        {% if election|can_manage_election:user %}
+                                            <a href="#" class="small ms-2" data-bs-toggle="modal" data-bs-target="#voterListModal">
+                                                {% trans 'View list' %}
+                                            </a>
+                                        {% endif %}
+                                    </dd>
+                                {% endif %}
+                                
+                                {% if election.tags.exists %}
+                                    <dt class="col-sm-5">{% trans 'Tags' %}:</dt>
+                                    <dd class="col-sm-7">
+                                        {% for tag in election.tags.all %}
+                                            <span class="badge bg-light text-dark border">
+                                                <i class="fas fa-tag me-1"></i>{{ tag.name }}
+                                            </span>
+                                        {% endfor %}
+                                    </dd>
+                                {% endif %}
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Voting Information -->
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="fas fa-vote-yea me-2"></i>{% trans 'Voting Information' %}
+                            </h5>
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            {% if election.status == 'active' %}
+                                {% if user.is_authenticated %}
+                                    {% if election|can_vote:user %}
+                                        {% if election|has_voted:user %}
+                                            <div class="alert alert-success">
+                                                <div class="d-flex align-items-center">
+                                                    <i class="fas fa-check-circle me-2"></i>
+                                                    <div>
+                                                        <strong>{% trans 'Vote Submitted' %}</strong>
+                                                        <p class="mb-0">
+                                                            {% trans 'Thank you for participating in this election.' %}
+                                                            {% if not election.results_published %}
+                                                                <div class="mt-2">
+                                                                    <a href="{% url 'voting:election_results' election.pk %}" class="btn btn-sm btn-outline-success">
+                                                                        <i class="fas fa-chart-bar me-1"></i> {% trans 'View Results' %}
+                                                                    </a>
+                                                                </div>
+                                                            {% endif %}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% else %}
+                                            <div class="text-center my-3">
+                                                <a href="{% url 'voting:election_vote' election.pk %}" class="btn btn-success btn-lg w-100 py-3">
+                                                    <i class="fas fa-check-circle me-2"></i> 
+                                                    <strong>{% trans 'Vote Now' %}</strong>
+                                                </a>
+                                                <div class="mt-4">
+                                                    <div class="alert alert-info">
+                                                        <i class="fas fa-info-circle me-2"></i>
+                                                        {% trans 'Voting closes on' %} <strong>{{ election.end_date|date:"F j, Y H:i" }}</strong>
+                                                        <div class="small mt-1">
+                                                            {% trans 'Time remaining:' %} 
+                                                            <span class="fw-bold" id="countdown-timer"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <script>
+                                                // Countdown timer
+                                                function updateCountdown() {
+                                                    const endDate = new Date('{{ election.end_date|date:"c" }}');
+                                                    const now = new Date();
+                                                    const diff = endDate - now;
+                                                    
+                                                    if (diff <= 0) {
+                                                        document.getElementById('countdown-timer').textContent = '{% trans "Voting has ended" %}';
+                                                        window.location.reload();
+                                                        return;
+                                                    }
+                                                    
+                                                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                                                    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                                                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                                                    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                                                    
+                                                    let countdownText = '';
+                                                    if (days > 0) countdownText += `${days}d `;
+                                                    if (hours > 0 || days > 0) countdownText += `${hours}h `;
+                                                    countdownText += `${minutes}m ${seconds}s`;
+                                                    
+                                                    document.getElementById('countdown-timer').textContent = countdownText;
+                                                }
+                                                
+                                                updateCountdown();
+                                                setInterval(updateCountdown, 1000);
+                                            </script>
+                                        {% endif %}
+                                    {% else %}
+                                        <div class="alert alert-warning">
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-exclamation-triangle me-3"></i>
+                                                <div>
+                                                    <h5 class="mb-1">{% trans 'Not Eligible to Vote' %}</h5>
+                                                    <p class="mb-0">
+                                                        {% trans 'You are not eligible to vote in this election. Please contact the election administrator if you believe this is an error.' %}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% else %}
+                                    <div class="text-center my-4">
+                                        <div class="mb-4">
+                                            <i class="fas fa-lock fa-4x text-secondary mb-3"></i>
+                                            <h4>{% trans 'Authentication Required' %}</h4>
+                                            <p class="text-muted">
+                                                {% trans 'Please log in to cast your vote in this election.' %}
+                                            </p>
+                                        </div>
+                                        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                                            <a href="{% url 'accounts:login' %}?next={% url 'voting:election_detail' election.id %}" 
+                                               class="btn btn-primary btn-lg px-4 me-sm-3">
+                                                <i class="fas fa-sign-in-alt me-2"></i> {% trans 'Log In' %}
+                                            </a>
+                                            <a href="{% url 'accounts:signup' %}?next={% url 'voting:election_detail' election.id %}" 
+                                               class="btn btn-outline-secondary btn-lg px-4">
+                                                <i class="fas fa-user-plus me-2"></i> {% trans 'Sign Up' %}
+                                            </a>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            
+                            {% elif election.status == 'published' %}
+                                <div class="alert alert-info">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-info-circle me-3 fa-2x"></i>
+                                        <div>
+                                            <h4 class="mb-1">{% trans 'Election Not Started' %}</h4>
+                                            <p class="mb-0">
+                                                {% trans 'This election has been published but is not yet active. Voting will begin on' %} 
+                                                <strong>{{ election.start_date|date:"F j, Y H:i" }}</strong>.
+                                            </p>
+                                            <div class="mt-2 small">
+                                                <i class="far fa-clock me-1"></i>
+                                                <span id="time-until-start"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <script>
+                                    // Time until election starts
+                                    function updateTimeUntilStart() {
+                                        const startDate = new Date('{{ election.start_date|date:"c" }}');
+                                        const now = new Date();
+                                        const diff = startDate - now;
+                                        
+                                        if (diff <= 0) {
+                                            document.getElementById('time-until-start').textContent = '{% trans "Election starting soon..." %}';
+                                            window.location.reload();
+                                            return;
+                                        }
+                                        
+                                        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                                        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                                        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                                        
+                                        let timeText = '';
+                                        if (days > 0) timeText += `${days} day${days !== 1 ? 's' : ''}, `;
+                                        timeText += `${hours} hour${hours !== 1 ? 's' : ''}, `;
+                                        timeText += `${minutes} minute${minutes !== 1 ? 's' : ''}`;
+                                        
+                                        document.getElementById('time-until-start').textContent = 
+                                            `Starts in ${timeText}`;
+                                    }
+                                    
+                                    updateTimeUntilStart();
+                                    setInterval(updateTimeUntilStart, 60000); // Update every minute
+                                </script>
+                                
+                                <div class="mt-4">
+                                    <h5 class="mb-3">
+                                        <i class="fas fa-calendar-alt me-2"></i>{% trans 'Election Timeline' %}
+                                    </h5>
+                                    <div class="timeline">
+                                        <div class="timeline-item">
+                                            <div class="timeline-badge bg-primary">
+                                                <i class="fas fa-calendar-check"></i>
+                                            </div>
+                                            <div class="timeline-panel">
+                                                <div class="timeline-heading">
+                                                    <h6 class="timeline-title">{% trans 'Voting Period' %}</h6>
+                                                </div>
+                                                <div class="timeline-body">
+                                                    <p class="mb-0">
+                                                        <i class="far fa-calendar me-1"></i>
+                                                        {{ election.start_date|date:"F j, Y H:i" }}
+                                                        <br>
+                                                        <i class="fas fa-arrow-down ms-3 me-1 small"></i>
+                                                        {{ election.end_date|date:"F j, Y H:i" }}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        {% if election.results_published %}
+                                            <div class="timeline-item">
+                                                <div class="timeline-badge bg-success">
+                                                    <i class="fas fa-chart-bar"></i>
+                                                </div>
+                                                <div class="timeline-panel">
+                                                    <div class="timeline-heading">
+                                                        <h6 class="timeline-title">{% trans 'Results Published' %}</h6>
+                                                    </div>
+                                                    <div class="timeline-body">
+                                                        <p class="mb-0">
+                                                            <i class="far fa-calendar-check me-1"></i>
+                                                            {{ election.results_published|date:"F j, Y H:i" }}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                {% if election|can_manage_election:user %}
+                                    <div class="mt-4 pt-3 border-top">
+                                        <h6 class="h6 mb-3">
+                                            <i class="fas fa-tools me-2"></i>{% trans 'Election Management' %}
+                                        </h6>
+                                        <div class="d-grid gap-2">
+                                            <a href="{% url 'voting:election_update' election.pk %}" class="btn btn-outline-primary">
+                                                <i class="fas fa-edit me-2"></i>{% trans 'Edit Election' %}
+                                            </a>
+                                            <a href="{% url 'voting:election_publish' election.pk %}" class="btn btn-success">
+                                                <i class="fas fa-paper-plane me-2"></i>{% trans 'Publish Election' %}
+                                            </a>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            
+                            {% elif election.status == 'completed' %}
+                                <div class="text-center my-4">
+                                    <div class="mb-4">
+                                        <i class="fas fa-flag-checkered fa-4x text-secondary mb-3"></i>
+                                        <h4>{% trans 'Election Completed' %}</h4>
+                                        <p class="text-muted">
+                                            {% trans 'This election has ended. The results are now available.' %}
+                                        </p>
+                                    </div>
+                                    <a href="{% url 'voting:election_results' election.pk %}" class="btn btn-primary">
+                                        <i class="fas fa-chart-bar me-2"></i> {% trans 'View Results' %}
+                                    </a>
+                                    
+                                    {% if election|can_manage_election:user %}
+                                        <div class="mt-4 pt-3 border-top">
+                                            <h6 class="h6 mb-3">
+                                                <i class="fas fa-tools me-2"></i>{% trans 'Election Management' %}
+                                            </h6>
+                                            <div class="d-grid gap-2">
+                                                <a href="{% url 'voting:election_export' election.pk %}?format=csv" class="btn btn-outline-secondary">
+                                                    <i class="fas fa-file-export me-2"></i>{% trans 'Export Results (CSV)' %}
+                                                </a>
+                                                <a href="{% url 'voting:election_export' election.pk %}?format=pdf" class="btn btn-outline-danger">
+                                                    <i class="fas fa-file-pdf me-2"></i>{% trans 'Export Results (PDF)' %}
+                                                </a>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                            {% elif election.status == 'cancelled' %}
+                                <div class="text-center my-4">
+                                    <i class="fas fa-ban fa-4x text-warning mb-3"></i>
+                                    <h4>{% trans 'Voting Not Available' %}</h4>
+                                    <p class="text-muted">
+                                        {% trans 'This election has been cancelled and is no longer accepting votes.' %}
+                                    </p>
+                                </div>
+                                
+                                <div class="alert alert-warning">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                        <div>
+                                            <strong>{% trans 'Election Cancelled' %}</strong>
+                                            <p class="mb-0">
+                                                {% if election.cancellation_reason %}
+                                                    {{ election.cancellation_reason }}
+                                                {% else %}
+                                                    {% trans 'This election has been cancelled by the administrator.' %}
+                                                {% endif %}
+                                            </p>
+                                            {% if election.cancelled_at %}
+                                                <p class="mb-0 mt-2 small">
+                                                    <i class="far fa-clock me-1"></i>
+                                                    {% trans 'Cancelled on' %} {{ election.cancelled_at|date:"F j, Y H:i" }}
+                                                </p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {% if election|can_manage_election:user %}
+                                    <div class="mt-4 pt-3 border-top">
+                                        <h6 class="h6 mb-3">
+                                            <i class="fas fa-tools me-2"></i>{% trans 'Election Management' %}
+                                        </h6>
+                                        <div class="d-grid gap-2">
+                                            <a href="{% url 'voting:election_update' election.pk %}" class="btn btn-outline-primary">
+                                                <i class="fas fa-edit me-2"></i>{% trans 'Edit Election' %}
+                                            </a>
+                                            <a href="{% url 'voting:election_reactivate' election.pk %}" class="btn btn-outline-success">
+                                                <i class="fas fa-redo me-2"></i>{% trans 'Reactivate' %}
+                                            </a>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                
+                            {% elif election.status == 'draft' %}
+                                <div class="alert alert-info">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        <div>
+                                            <strong>{% trans 'Election in Draft' %}</strong>
+                                            <p class="mb-0">
+                                                {% trans 'This election is in draft mode and not yet visible to voters.' %}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {% if election|can_manage_election:user %}
+                                    <div class="mt-4 pt-3 border-top">
+                                        <h6 class="h6 mb-3">
+                                            <i class="fas fa-tools me-2"></i>{% trans 'Election Management' %}
+                                        </h6>
+                                        <div class="d-grid gap-2">
+                                            <a href="{% url 'voting:election_update' election.pk %}" class="btn btn-primary">
+                                                <i class="fas fa-edit me-2"></i>{% trans 'Continue Editing' %}
+                                            </a>
+                                            <a href="{% url 'voting:election_publish' election.pk %}" class="btn btn-success">
+                                                <i class="fas fa-paper-plane me-2"></i>{% trans 'Publish Election' %}
+                                            </a>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Election Statistics -->
+            {% if election.status == 'active' or election.status == 'completed' %}
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-chart-bar me-2"></i>{% trans 'Voting Statistics' %}
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row text-center">
+                                    <div class="col-md-4 mb-3 mb-md-0">
+                                        <div class="display-4 text-primary">{{ election.total_votes|default:0 }}</div>
+                                        <div class="text-muted">{% trans 'Total Votes' %}</div>
+                                    </div>
+                                    <div class="col-md-4 mb-3 mb-md-0">
+                                        <div class="display-4 text-success">{{ election.voter_turnout|default:0 }}%</div>
+                                        <div class="text-muted">{% trans 'Voter Turnout' %}</div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="display-4 text-info">{{ election.unique_voters|default:0 }}</div>
+                                        <div class="text-muted">{% trans 'Unique Voters' %}</div>
+                                    </div>
+                                </div>
+                                {% if election.status == 'active' %}
+                                    <div class="progress mt-4 election-progress-bar">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated election-progress" 
+                                             role="progressbar" 
+                                             aria-valuenow="{{ election.time_elapsed_percent|default:0 }}" 
+                                             aria-valuemin="0" 
+                                             aria-valuemax="100">
+                                            {{ election.time_elapsed_percent|default:0 }}%
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <small>{{ election.start_date|date:"M d, Y" }}</small>
+                                        <small>{% trans 'Time Elapsed' %}</small>
+                                        <small>{{ election.end_date|date:"M d, Y" }}</small>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Voter List Modal -->
+{% if election.voters.exists and election|can_manage_election:user %}
+    <div class="modal fade" id="voterListModal" tabindex="-1" aria-labelledby="voterListModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="voterListModalLabel">
+                        <i class="fas fa-users me-2"></i>{% trans 'Eligible Voters' %}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>{% trans 'Name' %}</th>
+                                    <th>{% trans 'Email' %}</th>
+                                    <th class="text-center">{% trans 'Voted' %}</th>
+                                    {% if election.status == 'completed' %}
+                                        <th class="text-center">{% trans 'Vote Time' %}</th>
+                                    {% endif %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for voter in election.voters.all %}
+                                    <tr>
+                                        <td>{{ voter.get_full_name|default:voter.username }}</td>
+                                        <td>{{ voter.email }}</td>
+                                        <td class="text-center">
+                                            {% if voter in election.voters_voted.all %}
+                                                <span class="badge bg-success"><i class="fas fa-check"></i></span>
+                                            {% else %}
+                                                <span class="badge bg-secondary"><i class="fas fa-times"></i></span>
+                                            {% endif %}
+                                        </td>
+                                        {% if election.status == 'completed' %}
+                                            <td class="text-center">
+                                                {% if voter in election.voters_voted.all %}
+                                                    {{ election.get_vote_time_for_voter(voter)|date:"M d, Y H:i"|default:"-" }}
+                                                {% else %}
+                                                    -
+                                                {% endif %}
+                                            </td>
+                                        {% endif %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i> {% trans 'Close' %}
+                    </button>
+                    <a href="{% url 'voting:election_export_voters' election.pk %}" class="btn btn-primary">
+                        <i class="fas fa-download me-1"></i> {% trans 'Export to CSV' %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteElectionModal" tabindex="-1" aria-labelledby="deleteElectionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteElectionModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>{% trans 'Confirm Deletion' %}
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
+            </div>
+            <div class="modal-body">
+                <p>{% trans 'Are you sure you want to delete this election? This action cannot be undone.' %}</p>
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    {% trans 'All votes and data associated with this election will be permanently removed.' %}
+                </div>
+                <form id="deleteElectionForm" method="post" action="{% url 'voting:election_delete' election.pk %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="confirmText" class="form-label">
+                            {% trans 'Type "DELETE" to confirm:' %}
+                        </label>
+                        <input type="text" class="form-control" id="confirmText" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i> {% trans 'Cancel' %}
+                </button>
+                <button type="submit" form="deleteElectionForm" class="btn btn-danger" id="confirmDeleteBtn" disabled>
+                    <i class="fas fa-trash-alt me-1"></i> {% trans 'Delete Permanently' %}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+    .election-progress-bar {
+        height: 20px;
+    }
+    
+    .election-progress {
+        width: var(--election-progress-width);
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+    // Enable/disable delete confirmation button based on input
+    document.addEventListener('DOMContentLoaded', function() {
+        const confirmText = document.getElementById('confirmText');
+        const confirmBtn = document.getElementById('confirmDeleteBtn');
+        
+        if (confirmText && confirmBtn) {
+            confirmText.addEventListener('input', function() {
+                confirmBtn.disabled = this.value !== 'DELETE';
+            });
+        }
+        
+        // Initialize tooltips
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+
+        // Update progress bar width on page load
+        const progressBar = document.querySelector('.election-progress');
+        if (progressBar) {
+            progressBar.style.setProperty('--election-progress-width', '{{ election.time_elapsed_percent|default:0 }}%');
+        }
+    });
+    
+    // HTMX configuration
+    document.body.addEventListener('htmx:configRequest', function(evt) {
+        // Add CSRF token to all HTMX requests
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        if (csrfToken) {
+            evt.detail.headers['X-CSRFToken'] = csrfToken;
+        }
+    });
+    
+    // Handle HTMX response
+    document.body.addEventListener('htmx:afterRequest', function(evt) {
+        if (evt.detail.successful) {
+            // Reload the page after a successful action
+            setTimeout(function() {
+                window.location.reload();
+            }, 1000);
+        }
+    });
+</script>
+{% endblock %}

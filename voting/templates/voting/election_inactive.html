@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ election.name }} - Inactive{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h2 class="h4 mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Election Not Active
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-title">{{ election.name }}</h3>
+                    <p class="card-text">
+                        This election is currently not active. 
+                        {% if election.status == 'draft' %}
+                            It is still in draft mode and has not been published yet.
+                        {% elif election.status == 'published' %}
+                            It has been published but is not yet active. Please check back later.
+                        {% elif election.status == 'completed' %}
+                            It has already ended. Thank you for your participation!
+                        {% elif election.status == 'cancelled' %}
+                            It has been cancelled.
+                        {% endif %}
+                    </p>
+                    
+                    <div class="election-dates mt-4">
+                        <h5 class="mb-3">Election Schedule</h5>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <i class="far fa-calendar-alt me-2"></i>
+                                <strong>Starts:</strong> {{ election.start_date|date:"F j, Y H:i" }}
+                            </li>
+                            <li class="mb-2">
+                                <i class="far fa-calendar-alt me-2"></i>
+                                <strong>Ends:</strong> {{ election.end_date|date:"F j, Y H:i" }}
+                            </li>
+                            <li>
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Status:</strong> {{ election.get_status_display }}
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a href="{% url 'voting:election_list' %}" class="btn btn-primary">
+                            <i class="fas fa-arrow-left me-1"></i> Back to Elections
+                        </a>
+                        
+                        {% if election.can_user_manage(user) %}
+                            <a href="{% url 'voting:election_update' election.pk %}" class="btn btn-outline-secondary ms-2">
+                                <i class="fas fa-cog me-1"></i> Manage Election
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "accounts/emails/base.html" %}
+{% load i18n %}
+
+{% block content %}
+  <tr>
+    <td style="padding: 24px;">
+      <p style="margin: 0 0 16px;">
+        {% blocktrans with name=user.get_short_name %}Hello {{ name }},{% endblocktrans %}
+      </p>
+      <p style="margin: 0 0 16px;">
+        {% trans "We're letting you know that the email address associated with your account has been changed from" %} 
+        <strong>{{ old_email }}</strong> {% trans "to" %} <strong>{{ new_email }}</strong>.
+      </p>
+      <p style="margin: 0 0 16px;">
+        {% trans "If you did not make this change, please contact our support team immediately at" %} 
+        <a href="mailto:{{ support_email }}" style="color: #1976D2;">{{ support_email }}</a> 
+        {% trans "to secure your account." %}
+      </p>
+      <p style="margin: 0 0 16px;">
+        {% trans "For security reasons, we recommend that you:" %}
+      </p>
+      <ul style="margin: 0 0 16px 16px; padding-left: 16px;">
+        <li>{% trans "Change your password immediately if you didn't authorize this change" %}</li>
+        <li>{% trans "Enable two-factor authentication for added security" %}</li>
+        <li>{% trans "Review your account activity for any unauthorized access" %}</li>
+      </ul>
+      <p style="margin: 0 0 16px; color: #757575;">
+        {% trans "This is an automated message, please do not reply to this email." %}
+      </p>
+    </td>
+  </tr>
+{% endblock %}

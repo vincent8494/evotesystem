@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans 'Profile' %} - {{ profile_user.get_full_name|default:profile_user.email }}{% endblock %}
+
+{% block page_title %}
+    {{ profile_user.get_full_name|default:profile_user.email }}
+    {% if is_own_profile %}
+        <a href="{% url 'accounts:profile_edit' %}" class="btn btn-outline-primary btn-sm ms-3">
+            <i class="bi bi-pencil"></i> {% trans 'Edit Profile' %}
+        </a>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Left Column - Profile Info -->
+    <div class="col-lg-4 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body text-center">
+                <div class="position-relative d-inline-block mb-3">
+                    {% if profile_user.profile.profile_picture %}
+                        <img src="{{ profile_user.profile.profile_picture.url }}" 
+                             alt="{{ profile_user.get_full_name }}" 
+                             class="rounded-circle img-thumbnail" 
+                             style="width: 150px; height: 150px; object-fit: cover;">
+                    {% else %}
+                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" 
+                             style="width: 150px; height: 150px; margin: 0 auto;">
+                            <i class="bi bi-person-circle display-4 text-muted"></i>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <h4 class="mb-1">{{ profile_user.get_full_name|default:profile_user.email }}</h4>
+                
+                {% if profile_user.profile.title %}
+                    <p class="text-muted mb-2">{{ profile_user.profile.title }}</p>
+                {% endif %}
+                
+                <div class="d-flex justify-content-center gap-2 mb-3">
+                    {% if profile_user.profile.phone_number %}
+                        <a href="tel:{{ profile_user.profile.phone_number }}" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-telephone"></i>
+                        </a>
+                    {% endif %}
+                    
+                    {% if profile_user.email %}
+                        <a href="mailto:{{ profile_user.email }}" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-envelope"></i>
+                        </a>
+                    {% endif %}
+                </div>
+                
+                {% if profile_user.profile.bio %}
+                    <div class="text-start">
+                        <h6 class="text-uppercase text-muted small mb-2">{% trans 'About' %}</h6>
+                        <p class="mb-0">{{ profile_user.profile.bio|linebreaksbr }}</p>
+                    </div>
+                {% endif %}
+            </div>
+            
+            {% if is_own_profile %}
+                <div class="card-footer bg-transparent">
+                    <a href="{% url 'accounts:password_change' %}" class="btn btn-outline-secondary w-100">
+                        <i class="bi bi-key"></i> {% trans 'Change Password' %}
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Right Column - Details -->
+    <div class="col-lg-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">{% trans 'Personal Information' %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-sm-4 fw-bold">{% trans 'Full Name' %}</div>
+                    <div class="col-sm-8">{{ profile_user.get_full_name|default:'-' }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4 fw-bold">{% trans 'Email' %}</div>
+                    <div class="col-sm-8">
+                        {{ profile_user.email }}
+                        {% if profile_user.is_verified %}
+                            <span class="badge bg-success ms-2">{% trans 'Verified' %}</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark ms-2">{% trans 'Unverified' %}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4 fw-bold">{% trans 'Account Type' %}</div>
+                    <div class="col-sm-8">
+                        {{ profile_user.get_user_type_display }}
+                        {% if profile_user.is_staff %}
+                            <span class="badge bg-primary ms-2">{% trans 'Staff' %}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if profile_user.profile %}
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold">{% trans 'Gender' %}</div>
+                        <div class="col-sm-8">
+                            {{ profile_user.profile.get_gender_display|default:'-' }}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold">{% trans 'Date of Birth' %}</div>
+                        <div class="col-sm-8">
+                            {{ profile_user.profile.date_of_birth|date:"F j, Y"|default:'-' }}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold">{% trans 'Phone Number' %}</div>
+                        <div class="col-sm-8">
+                            {{ profile_user.profile.phone_number|default:'-' }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4 fw-bold">{% trans 'Address' %}</div>
+                        <div class="col-sm-8">
+                            {{ profile_user.profile.address|linebreaksbr|default:'-' }}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Additional sections for candidates -->
+        {% if profile_user.profile.is_candidate %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">{% trans 'Candidate Information' %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold">{% trans 'Party Affiliation' %}</div>
+                        <div class="col-sm-8">
+                            {{ profile_user.profile.party_affiliation|default:'Independent' }}
+                        </div>
+                    </div>
+                    {% if profile_user.profile.manifesto %}
+                        <div class="mb-3">
+                            <h6 class="fw-bold">{% trans 'Manifesto' %}</h6>
+                            <div class="p-3 bg-light rounded">
+                                {{ profile_user.profile.manifesto|linebreaksbr }}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+        
+        <!-- Voter Information -->
+        {% if profile_user.profile.voter_id %}
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">{% trans 'Voter Information' %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold">{% trans 'Voter ID' %}</div>
+                        <div class="col-sm-8">
+                            {{ profile_user.profile.voter_id }}
+                            {% if profile_user.profile.is_verified %}
+                                <span class="badge bg-success ms-2">{% trans 'Verified' %}</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark ms-2">{% trans 'Pending Verification' %}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4 fw-bold">{% trans 'Voting Status' %}</div>
+                        <div class="col-sm-8">
+                            {% if profile_user.profile.has_voted %}
+                                <span class="badge bg-success">{% trans 'Voted' %}</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{% trans 'Not Voted Yet' %}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

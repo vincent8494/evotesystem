@@ -1,0 +1,37 @@
+{% extends "accounts/emails/base.html" %}
+{% load i18n %}
+
+{% block content %}
+  <tr>
+    <td style="padding: 24px;">
+      <p style="margin: 0 0 16px;">
+        {% blocktrans with name=user.get_short_name %}Hello {{ name }},{% endblocktrans %}
+      </p>
+      <p style="margin: 0 0 16px;">
+        {% trans "We're sorry to see you go. Your account has been deactivated as requested." %}
+      </p>
+      <p style="margin: 0 0 16px;">
+        {% trans "Here are some important details about your account deactivation:" %}
+      </p>
+      <ul style="margin: 0 0 16px 16px; padding-left: 16px;">
+        <li>{% trans "Your account will remain deactivated for 30 days before permanent deletion" %}</li>
+        <li>{% trans "You can reactivate your account by logging in within this period" %}</li>
+        <li>{% trans "After 30 days, all your data will be permanently deleted" %}</li>
+      </ul>
+      <p style="margin: 0 0 16px;">
+        {% trans "If you didn't request this deactivation, please contact our support team immediately at" %} 
+        <a href="mailto:{{ support_email }}" style="color: #1976D2;">{{ support_email }}</a> 
+        {% trans "to secure your account." %}
+      </p>
+      <p style="margin: 0 0 16px;">
+        {% trans "If you change your mind, you can reactivate your account by logging in within the next 30 days." %}
+      </p>
+      <p style="margin: 0 0 16px; color: #757575;">
+        {% trans "We're sorry to see you go and hope to see you again in the future." %}
+      </p>
+      <p style="margin: 0 0 16px; color: #757575; font-size: 14px;">
+        {% trans "This is an automated message, please do not reply to this email." %}
+      </p>
+    </td>
+  </tr>
+{% endblock %}

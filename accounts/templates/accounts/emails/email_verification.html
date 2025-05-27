@@ -1,0 +1,34 @@
+{% extends "accounts/emails/base.html" %}
+{% load i18n %}
+
+{% block content %}
+  <tr>
+    <td style="padding: 0 24px;">
+      <p style="margin: 0 0 16px;">
+        {% blocktrans with name=user.get_full_name|default:user.email %}Hello {{ name }},{% endblocktrans %}
+      </p>
+      <p style="margin: 0 0 16px;">
+        {% trans "Thank you for signing up! Please verify your email address by clicking the button below:" %}
+      </p>
+      <table border="0" cellspacing="0" cellpadding="0" style="margin: 24px 0;">
+        <tr>
+          <td align="center" bgcolor="#4CAF50" style="border-radius: 4px;">
+            <a href="{{ protocol }}://{{ domain }}{% url 'accounts:verify-email-confirm' uidb64=uid token=token %}"
+               style="display: inline-block; padding: 12px 24px; font-family: Arial, sans-serif; font-size: 16px; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: bold;">
+              {% trans "Verify Email Address" %}
+            </a>
+          </td>
+        </tr>
+      </table>
+      <p style="margin: 0 0 16px;">
+        {% trans "Or copy and paste this link into your browser:" %}<br>
+        <a href="{{ protocol }}://{{ domain }}{% url 'accounts:verify-email-confirm' uidb64=uid token=token %}" style="color: #2196F3; word-break: break-all;">
+          {{ protocol }}://{{ domain }}{% url 'accounts:verify-email-confirm' uidb64=uid token=token %}
+        </a>
+      </p>
+      <p style="margin: 0 0 16px; color: #757575;">
+        {% trans "If you didn't create an account with us, please ignore this email." %}
+      </p>
+    </td>
+  </tr>
+{% endblock %}

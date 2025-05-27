@@ -1,0 +1,276 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Election Results' %}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">
+            <i class="fas fa-chart-bar me-2"></i>
+            {% trans 'Election Results' %}
+        </h1>
+        <div>
+            <button onclick="window.print()" class="btn btn-outline-secondary btn-sm me-2">
+                <i class="fas fa-print me-1"></i> {% trans 'Print' %}
+            </button>
+            <a href="{% url 'voting:election_detail' election.pk %}" class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i> {% trans 'Back to Election' %}
+            </a>
+        </div>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h2 class="h5 mb-0">{{ election.name }}</h2>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="mb-2">
+                        <strong>{% trans 'Status' %}:</strong>
+                        <span class="badge 
+                            {% if election.status == 'active' %}bg-success
+                            {% elif election.status == 'completed' %}bg-secondary
+                            {% elif election.status == 'cancelled' %}bg-danger
+                            {% else %}bg-warning{% endif %}">
+                            {{ election.get_status_display }}
+                        </span>
+                    </div>
+                    <div class="mb-2">
+                        <strong>{% trans 'Start Time' %}:</strong>
+                        {{ election.start_date|date:"F j, Y H:i" }}
+                    </div>
+                    <div class="mb-2">
+                        <strong>{% trans 'End Time' %}:</strong>
+                        {{ election.end_date|date:"F j, Y H:i" }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h5 class="card-title">{% trans 'Summary' %}</h5>
+                            <div class="d-flex justify-content-between">
+                                <div>{% trans 'Total Positions' %}:</div>
+                                <div><strong>{{ results|length }}</strong></div>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <div>{% trans 'Total Votes Cast' %}:</div>
+                                <div><strong>{{ total_votes|default:0 }}</strong></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if has_results %}
+                {% for result in results %}
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h3 class="h5 mb-0">{{ result.post.title }}</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>{% trans 'Candidate' %}</th>
+                                            <th>{% trans 'Votes' %}</th>
+                                            <th>{% trans 'Percentage' %}</th>
+                                            <th>{% trans 'Progress' %}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody data-election-active="{{ election.status == 'active'|yesno:'true,false' }}" 
+      data-event-source-url="{% url 'voting:election_results_stream' election.pk %}">
+                                        {% for contestant in result.contestants %}
+                                            <tr class="{% if forloop.first and result.total_votes > 0 %}table-success{% endif %}">
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        {% if contestant.photo %}
+                                                            <img src="{{ contestant.photo.url }}" 
+                                                                 class="rounded-circle me-2" 
+                                                                 width="32" 
+                                                                 height="32" 
+                                                                 alt="{{ contestant.user.get_full_name }}">
+                                                        {% endif %}
+                                                        <div>
+                                                            <div class="fw-bold">
+                                                                {{ contestant.user.get_full_name|default:contestant.user.username }}
+                                                            </div>
+                                                            {% if contestant.party %}
+                                                                <small class="text-muted">{{ contestant.party.name }}</small>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>{{ contestant.vote_count }}</td>
+                                                <td>
+                                                    {% if result.total_votes > 0 %}
+                                                        {{ contestant.vote_count|floatformat:1 }}%
+                                                    {% else %}
+                                                        0.0%
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    {% with vote_count=contestant.vote_count|default:0 %}
+                                                    {% with total=result.total_votes|default:1 %}
+                                                    {% with percentage=vote_count|floatformat:0|default:0 %}
+                                                    {% with bar_class=forloop.first|yesno:'bg-success,' %}
+                                                    <div class="progress-bar-container" style="height: 20px;">
+                                                        <div class="progress-bar {{ bar_class }}" 
+                                                             role="progressbar" 
+                                                             data-width="{{ percentage }}"
+                                                             aria-valuenow="{{ vote_count }}" 
+                                                             aria-valuemin="0" 
+                                                             aria-valuemax="{{ total }}">
+                                                        </div>
+                                                    </div>
+                                                    {% endwith %}
+                                                    {% endwith %}
+                                                    {% endwith %}
+                                                    {% endwith %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="mt-2 text-muted small">
+                                {% trans 'Total votes for this position' %}: {{ result.total_votes }}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    {% trans 'No results available for this election yet.' %}
+                </div>
+            {% endif %}
+        </div>
+        <div class="card-footer text-muted text-center">
+            <small>{% trans 'Results as of' %} {{ now|date:"F j, Y H:i" }}</small>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .progress-bar-container {
+        width: 100%;
+        background-color: #e9ecef;
+        border-radius: 0.25rem;
+        overflow: hidden;
+    }
+    
+    .progress-bar {
+        height: 100%;
+        transition: width 0.6s ease;
+        width: 0%;
+    }
+    
+    .bg-success {
+        background-color: #198754 !important;
+    }
+    
+    @media print {
+        .no-print {
+            display: none !important;
+        }
+        
+        .card {
+            border: 1px solid #dee2e6;
+            page-break-inside: avoid;
+        }
+        
+        .progress-bar-container {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    (function() {
+        'use strict';
+        
+        // Initialize progress bars
+        function initProgressBars() {
+            var bars = document.querySelectorAll('.progress-bar[data-width]');
+            for (var i = 0; i < bars.length; i++) {
+                var bar = bars[i];
+                var width = bar.getAttribute('data-width');
+                if (width) {
+                    bar.style.width = width + '%';
+                }
+            }
+        }
+        
+        // Initialize auto-refresh for active elections
+        function initAutoRefresh() {
+            // Check if election is active using a data attribute
+            var isElectionActive = document.body.getAttribute('data-election-active') === 'true';
+            
+            if (!isElectionActive) {
+                return; // Exit if election is not active
+            }
+            
+            var refreshTimer = window.setTimeout(function() {
+                window.location.reload();
+            }, 30000);
+            
+            try {
+                var eventSourceUrl = document.body.getAttribute('data-event-source-url');
+                if (!eventSourceUrl) {
+                    throw new Error('Event source URL not found');
+                }
+                
+                var eventSource = new window.EventSource(eventSourceUrl);
+                
+                eventSource.onmessage = function(e) {
+                    if (e && e.data === 'refresh') {
+                        if (window.confirm('New results are available. Would you like to refresh the page?')) {
+                            window.location.reload();
+                        }
+                    }
+                };
+                
+                window.addEventListener('beforeunload', function() {
+                    if (eventSource && typeof eventSource.close === 'function') {
+                        eventSource.close();
+                    }
+                    if (refreshTimer) {
+                        window.clearTimeout(refreshTimer);
+                    }
+                });
+                
+                eventSource.onerror = function() {
+                    if (eventSource.readyState === 2 && window.console) {
+                        window.console.error('EventSource connection closed');
+                    }
+                };
+                
+            } catch (error) {
+                if (window.console) {
+                    window.console.error('Error initializing EventSource:', error);
+                }
+            }
+        }
+        
+        // Initialize everything when DOM is loaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                initProgressBars();
+                initAutoRefresh();
+            });
+        } else {
+            // DOM already loaded, initialize immediately
+            initProgressBars();
+            initAutoRefresh();
+        }
+    })();
+</script>
+{% endblock %}
