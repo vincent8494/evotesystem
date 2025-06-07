@@ -86,8 +86,8 @@ MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # Replace default CSRF middleware with our debug version
-    'config.csrf_debug_middleware.CsrfDebugMiddleware',
+    # Use our custom CSRF fix middleware
+    'config.csrf_fix_middleware.CsrfFixMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
