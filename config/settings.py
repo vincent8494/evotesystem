@@ -32,7 +32,19 @@ DEBUG = os.getenv('DEBUG', 'False') == 'True'  # Default to False in production
 TESTING = os.getenv('TESTING', 'False') == 'True'
 
 # Add your domain name(s) here
-ALLOWED_HOSTS = ['*']  # Railway will provide the hostname
+# Allow all hosts for now, but you should restrict this in production
+ALLOWED_HOSTS = ['*']
+
+# Add your Render domain to trusted origins
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+
+# Configure trusted origins for CSRF
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.onrender.com',
+    'https://evotesystem.onrender.com',
+]
 
 # Application definition
 INSTALLED_APPS = [
@@ -149,15 +161,30 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 SSL_ENABLED = False
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'  # For OAuth/OpenID
 
-# Security settings - explicitly disable all HTTPS/SSL in development
-SECURE_SSL_REDIRECT = False
-SESSION_COOKIE_SECURE = False
-CSRF_COOKIE_SECURE = False
-SECURE_HSTS_SECONDS = 0
-SECURE_HSTS_INCLUDE_SUBDOMAINS = False
-SECURE_HSTS_PRELOAD = False
-SECURE_PROXY_SSL_HEADER = None
-SECURE_REDIRECT_EXEMPT = ['.*']  # Exempt all URLs from HTTPS redirect
+# Security settings for production
+# Set to True in production (when using HTTPS)
+IS_PRODUCTION = os.getenv('IS_PRODUCTION', 'False') == 'True'
+
+# Security settings
+SECURE_SSL_REDIRECT = IS_PRODUCTION
+SESSION_COOKIE_SECURE = IS_PRODUCTION
+CSRF_COOKIE_SECURE = IS_PRODUCTION
+CSRF_COOKIE_HTTPONLY = True
+CSRF_USE_SESSIONS = False
+
+# HSTS Settings
+SECURE_HSTS_SECONDS = 31536000  # 1 year in seconds
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+# For reverse proxy/load balancer
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Ensure proper Content Security Policy
+SECURE_REFERRER_POLICY = 'same-origin'
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
 
 # Additional security settings
 CSRF_COOKIE_HTTPONLY = True
