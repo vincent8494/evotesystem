@@ -41,14 +41,21 @@
                         {% endif %}
                     {% endif %}
 
-                    <form method="post" action="{% url 'login' %}" class="auth-form" novalidate>
+                    <form method="post" action="{% url 'accounts:login' %}" class="auth-form" novalidate>
                         {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ next|default:request.GET.next }}">
                         
                         <div class="mb-3">
                             <label for="id_username" class="form-label">Email address</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                                <input type="email" name="username" class="form-control form-control-lg" 
+                                <input type="email" 
+                                       name="username" 
+                                       id="id_username" 
+                                       class="form-control form-control-lg" 
+                                       placeholder="Enter your email"
+                                       required
+                                       autofocus>
                                        id="id_username" placeholder="Enter your email" required 
                                        autocomplete="username" autofocus>
                             </div>
@@ -118,6 +125,88 @@
 
 {% block extra_js %}
 <script>
+// Function to get CSRF token from cookie
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Set up CSRF token for AJAX requests
+const csrftoken = getCookie('csrftoken');
+
+// Configure AJAX to include CSRF token
+$.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+    }
+});
+
+// Handle form submission
+$(document).ready(function() {
+    $('.auth-form').on('submit', function(e) {
+        e.preventDefault();
+        
+        const $form = $(this);
+        const $submitBtn = $form.find('button[type="submit"]');
+        const originalText = $submitBtn.html();
+        
+        // Disable button and show loading state
+        $submitBtn.prop('disabled', true).html(
+            '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Signing in...'
+        );
+        
+        // Submit form via AJAX
+        $.ajax({
+            type: 'POST',
+            url: $form.attr('action'),
+            data: $form.serialize(),
+            success: function(response) {
+                if (response.redirect) {
+                    window.location.href = response.redirect;
+                } else {
+                    // Handle successful login without redirect (shouldn't happen)
+                    window.location.reload();
+                }
+            },
+            error: function(xhr) {
+                // Re-enable button
+                $submitBtn.prop('disabled', false).html(originalText);
+                
+                // Show error message
+                let errorMsg = 'An error occurred during login. Please try again.';
+                if (xhr.responseJSON && xhr.responseJSON.error) {
+                    errorMsg = xhr.responseJSON.error;
+                }
+                
+                // Show error alert
+                const $alert = $('<div class="alert alert-danger alert-dismissible fade show" role="alert">' +
+                    '<i class="fas fa-exclamation-circle me-2"></i>' +
+                    errorMsg +
+                    '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                    '</div>');
+                
+                $('.auth-form').prepend($alert);
+                
+                // Auto-dismiss after 5 seconds
+                setTimeout(function() {
+                    $alert.alert('close');
+                }, 5000);
+            }
+        });
+    });
+});
 // Toggle password visibility
 document.addEventListener('DOMContentLoaded', function() {
     const togglePassword = document.querySelector('.toggle-password');
