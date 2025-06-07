@@ -35,16 +35,35 @@ TESTING = os.getenv('TESTING', 'False') == 'True'
 # Allow all hosts for now, but you should restrict this in production
 ALLOWED_HOSTS = ['*']
 
-# Add your Render domain to trusted origins
+# Get the Render external hostname if available
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+
+# Configure allowed hosts
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '.onrender.com',
+    'evotesystem.onrender.com',
+]
+
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 # Configure trusted origins for CSRF
 CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
     'https://*.onrender.com',
     'https://evotesystem.onrender.com',
 ]
+
+# Add the current domain to trusted origins if running on Render
+if RENDER_EXTERNAL_HOSTNAME:
+    CSRF_TRUSTED_ORIGINS.append(f'https://{RENDER_EXTERNAL_HOSTNAME}')
+    CSRF_TRUSTED_ORIGINS.append(f'http://{RENDER_EXTERNAL_HOSTNAME}')
+
+# Ensure no duplicates
+CSRF_TRUSTED_ORIGINS = list(dict.fromkeys(CSRF_TRUSTED_ORIGINS))
 
 # Application definition
 INSTALLED_APPS = [
@@ -67,12 +86,27 @@ MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # Replace default CSRF middleware with our debug version
+    'config.csrf_debug_middleware.CsrfDebugMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'config.middleware.ForceHttpMiddleware',  # Custom middleware to prevent HTTPS redirects
 ]
+
+# CSRF settings
+CSRF_COOKIE_DOMAIN = '.onrender.com'  # For subdomain support
+CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript to read the CSRF token
+CSRF_HEADER_NAME = 'HTTP_X_CSRFTOKEN'
+CSRF_USE_SESSIONS = False  # Store CSRF token in cookie, not session
+CSRF_COOKIE_SECURE = os.getenv('CSRF_COOKIE_SECURE', 'True') == 'True'
+CSRF_COOKIE_SAMESITE = 'Lax'  # or 'None' if using HTTPS and cross-site cookies
+
+# Session settings
+SESSION_COOKIE_DOMAIN = '.onrender.com'  # Match your domain
+SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', 'True') == 'True'
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
 
 ROOT_URLCONF = 'config.urls'
 
@@ -234,6 +268,10 @@ LOGGING = {
             'format': '{levelname} {asctime} {module} {message}',
             'style': '{',
         },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
     },
     'handlers': {
         'console': {
@@ -255,6 +293,16 @@ LOGGING = {
         'django': {
             'handlers': ['console', 'file'],
             'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+            'propagate': False,
+        },
+        'django.security.csrf': {
+            'handlers': ['console', 'file'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+        'config.csrf_debug_middleware': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
             'propagate': False,
         },
     },
