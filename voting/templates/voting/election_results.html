@@ -3,6 +3,17 @@
 
 {% block title %}{% trans 'Election Results' %}{% endblock %}
 
+{% block extra_head %}
+{{ block.super }}
+<script>
+    // Set a global variable to track if the election is active
+    document.addEventListener('DOMContentLoaded', function() {
+        var electionActive = '{{ election.status|default:"" }}' === 'active';
+        document.body.setAttribute('data-election-active', electionActive ? 'true' : 'false');
+    });
+</script>
+{% endblock %}
+
 {% block content %}
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -80,8 +91,7 @@
                                             <th>{% trans 'Progress' %}</th>
                                         </tr>
                                     </thead>
-                                    <tbody data-election-active="{% if election.status == 'active' %}true{% else %}false{% endif %}" 
-      data-event-source-url="{% url 'voting:election_results_stream' election.pk %}">
+                                    <tbody data-event-source-url="{% if election %}{% url 'voting:election_results_stream' election.pk %}{% else %}#{% endif %}">
 
                                         {% for contestant in result.contestants %}
                                             <tr class="{% if forloop.first and result.total_votes > 0 %}table-success{% endif %}">
