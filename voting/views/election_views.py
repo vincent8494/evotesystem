@@ -115,12 +115,19 @@ class ElectionDeleteView(ElectionManagerRequiredMixin, DeleteView):
         return response
 
 
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+
 @require_http_methods(["POST"])
+@csrf_exempt
 def toggle_election_status(request, pk, status):
     """
     View for toggling election status (publish, activate, complete, cancel).
     Only accessible by election managers.
     """
+    # Skip CSRF check for HTMX requests
+    if request.headers.get('HX-Request') == 'true':
+        setattr(request, '_dont_enforce_csrf_checks', True)
     try:
         election = Election.objects.get(pk=pk)
         
