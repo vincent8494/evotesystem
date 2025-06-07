@@ -1,5 +1,6 @@
 import logging
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse
 from django.contrib.auth import login, logout, authenticate, update_session_auth_hash, get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
@@ -322,12 +323,25 @@ class VerificationSentView(TemplateView):
 
 
 def login_view(request):
-    """Custom login view with account activation check."""
+    """
+    Custom login view with AJAX support and CSRF protection.
+    Handles both regular form submissions and AJAX requests.
+    """
     if request.user.is_authenticated:
-        return redirect('home')  # Redirect to home instead of election_list
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'error': 'You are already logged in.',
+                'redirect': '/'
+            }, status=400)
+        return redirect('home')
     
     if request.method == 'POST':
         form = CustomAuthenticationForm(request, data=request.POST)
+        
+        # Check if this is an AJAX request
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+        
         if form.is_valid():
             email = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
@@ -340,21 +354,53 @@ def login_view(request):
                     user.email_verified = True
                     user.email_verified_at = timezone.now()
                     user.save()
-                    
-                # Log the user in regardless of email verification status
+                
+                # Log the user in
                 login(request, user)
+                
+                if is_ajax:
+                    return JsonResponse({
+                        'success': True,
+                        'message': 'Login successful',
+                        'redirect': request.POST.get('next', '/')
+                    })
+                
                 messages.success(request, _('You are now logged in.'))
                 next_url = request.POST.get('next', '')
                 if next_url:
                     return redirect(next_url)
-                return redirect('home')  # Always redirect to home by default
-            else:
-                messages.error(request, _('Invalid email or password.'))
+                return redirect('home')
+            
+            # Authentication failed
+            if is_ajax:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Invalid email or password.'
+                }, status=400)
+            
+            messages.error(request, _('Invalid email or password.'))
         else:
+            # Form is invalid
+            if is_ajax:
+                return JsonResponse({
+                    'success': False,
+                    'errors': dict(form.errors.items())
+                }, status=400)
+            
             messages.error(request, _('Please correct the error below.'))
     else:
         form = CustomAuthenticationForm()
     
+    # For AJAX GET requests, return the form HTML
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        from django.template.loader import render_to_string
+        html = render_to_string('accounts/includes/login_form.html', {
+            'form': form,
+            'next': request.GET.get('next', '')
+        }, request=request)
+        return JsonResponse({'html': html})
+    
+    # Regular GET request
     context = {
         'form': form,
         'title': _('Log In'),
