@@ -1,14 +1,25 @@
 # config/views.py
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.conf import settings
+from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.views.generic import TemplateView
+from voting.models import Election
 
 def home(request):
+    # Get the currently active election if it exists
+    now = timezone.now()
+    active_election = Election.objects.filter(
+        status='active',
+        start_date__lte=now,
+        end_date__gte=now
+    ).first()
+    
     context = {
-        'has_dashboard': hasattr(request, 'user') and request.user.is_authenticated
+        'has_dashboard': hasattr(request, 'user') and request.user.is_authenticated,
+        'election': active_election  # Add the active election to the context
     }
     return render(request, 'home.html', context)
 

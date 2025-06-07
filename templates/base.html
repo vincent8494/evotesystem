@@ -31,8 +31,8 @@
     
     {% block extra_css %}{% endblock %}
 </head>
-<body data-election-active="{% if election.status == 'active' %}true{% else %}false{% endif %}" 
-      data-event-source-url="{% url 'voting:election_results_stream' election.pk %}">
+<body data-election-active="{% if election and election.status == 'active' %}true{% else %}false{% endif %}" 
+      {% if election %}data-event-source-url="{% url 'voting:election_results_stream' election.pk %}"{% endif %}>
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
