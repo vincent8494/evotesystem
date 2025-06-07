@@ -80,8 +80,9 @@
                                             <th>{% trans 'Progress' %}</th>
                                         </tr>
                                     </thead>
-                                    <tbody data-election-active="{{ election.status == 'active'|yesno:'true,false' }}" 
+                                    <tbody data-election-active="{% if election.status == 'active' %}true{% else %}false{% endif %}" 
       data-event-source-url="{% url 'voting:election_results_stream' election.pk %}">
+
                                         {% for contestant in result.contestants %}
                                             <tr class="{% if forloop.first and result.total_votes > 0 %}table-success{% endif %}">
                                                 <td>
