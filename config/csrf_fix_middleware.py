@@ -2,11 +2,15 @@
 Custom CSRF middleware to fix validation issues with Render.
 """
 import logging
-from django.middleware.csrf import CsrfViewMiddleware, get_token, _sanitize_token, constant_time_compare
+import re
+from django.middleware.csrf import CsrfViewMiddleware, get_token, constant_time_compare
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
 logger = logging.getLogger(__name__)
+
+# This is the same regex used by Django internally
+csrf_token_re = re.compile(r'^[a-zA-Z0-9]{64}$')
 
 class CsrfFixMiddleware(CsrfViewMiddleware):
     """
@@ -30,6 +34,22 @@ class CsrfFixMiddleware(CsrfViewMiddleware):
             request.META.get('HTTP_X_CSRFTOKEN')
         )
         return super()._reject(request, reason)
+    
+    def _sanitize_token(self, token):
+        """
+        Sanitize and validate the CSRF token.
+        """
+        if token is None:
+            return None
+            
+        # Convert to string in case it's not already
+        token = str(token)
+        
+        # Check if the token looks valid
+        if not csrf_token_re.match(token):
+            return None
+            
+        return token
     
     def _check_token(self, request):
         # Get the CSRF token from the request
@@ -68,7 +88,10 @@ class CsrfFixMiddleware(CsrfViewMiddleware):
             return self._reject(request, 'CSRF token not found')
             
         # Sanitize the token
-        csrf_token = _sanitize_token(csrf_token)
+        csrf_token = self._sanitize_token(csrf_token)
+        if not csrf_token:
+            logger.warning("Invalid CSRF token format")
+            return self._reject(request, 'Invalid CSRF token format')
         
         # Check the token against the cookie
         csrf_cookie = request.META.get('CSRF_COOKIE')
