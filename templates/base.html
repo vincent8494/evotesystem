@@ -248,7 +248,7 @@
     
     {% block extra_js %}{% endblock %}
     
-    <!-- CSRF Token for AJAX -->
+    <!-- CSRF Token for AJAX and HTMX -->
     <script>
         const csrftoken = '{{ csrf_token }}';
         const currentLanguage = '{{ LANGUAGE_CODE }}';
@@ -270,6 +270,30 @@
                         // Fallback to home if no history
                         window.location.href = '/';
                     }
+                });
+            }
+            
+            // Configure HTMX to include CSRF token in all AJAX requests
+            if (typeof htmx !== 'undefined') {
+                document.body.addEventListener('htmx:configRequest', function(evt) {
+                    // Get the CSRF token from the cookie if not already set
+                    if (!csrftoken) {
+                        const cookieValue = document.cookie
+                            .split('; ')
+                            .find(row => row.startsWith('csrftoken='))
+                            ?.split('=')[1];
+                        
+                        if (cookieValue) {
+                            evt.detail.headers['X-CSRFToken'] = decodeURIComponent(cookieValue);
+                        }
+                    } else {
+                        evt.detail.headers['X-CSRFToken'] = csrftoken;
+                    }
+                });
+                
+                // Handle HTMX errors
+                document.body.addEventListener('htmx:responseError', function(evt) {
+                    console.error('HTMX Error:', evt.detail);
                 });
             }
         });
