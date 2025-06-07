@@ -95,18 +95,44 @@ MIDDLEWARE = [
 ]
 
 # CSRF settings
-CSRF_COOKIE_DOMAIN = '.onrender.com'  # For subdomain support
-CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript to read the CSRF token
+CSRF_COOKIE_NAME = 'csrftoken'
 CSRF_HEADER_NAME = 'HTTP_X_CSRFTOKEN'
-CSRF_USE_SESSIONS = False  # Store CSRF token in cookie, not session
-CSRF_COOKIE_SECURE = os.getenv('CSRF_COOKIE_SECURE', 'True') == 'True'
-CSRF_COOKIE_SAMESITE = 'Lax'  # or 'None' if using HTTPS and cross-site cookies
+CSRF_USE_SESSIONS = False  # Use cookie-based CSRF tokens
+CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript to read the CSRF token
+CSRF_COOKIE_SECURE = True  # Only send over HTTPS
+CSRF_COOKIE_SAMESITE = 'Lax'  # Prevent CSRF and maintain some cross-site functionality
+CSRF_COOKIE_PATH = '/'
+CSRF_COOKIE_AGE = 60 * 60 * 24 * 7 * 52  # 1 year
 
 # Session settings
-SESSION_COOKIE_DOMAIN = '.onrender.com'  # Match your domain
-SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', 'True') == 'True'
-SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_NAME = 'sessionid'
+SESSION_COOKIE_SECURE = True  # Only send session cookie over HTTPS
+SESSION_COOKIE_HTTPONLY = True  # Prevent JavaScript access to session cookie
+SESSION_COOKIE_SAMESITE = 'Lax'  # Prevent CSRF and maintain some cross-site functionality
+SESSION_COOKIE_PATH = '/'
+SESSION_SAVE_EVERY_REQUEST = True  # Save the session on every request
+
+# Trusted origins for CSRF
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.onrender.com',
+    'https://evotesystem.onrender.com',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+]
+
+# Allow all host headers
+ALLOWED_HOSTS = [
+    '.onrender.com',
+    'evotesystem.onrender.com',
+    'localhost',
+    '127.0.0.1',
+]
+
+# Ensure HTTPS is detected behind proxy
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
 ROOT_URLCONF = 'config.urls'
 
