@@ -88,10 +88,16 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
 # Uses DATABASE_URL environment variable if available, falls back to SQLite
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+if DATABASE_URL and DATABASE_URL.startswith('postgres://'):
+    DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
+
 DATABASES = {
     'default': dj_database_url.config(
         default='sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3'),
-        conn_max_age=600
+        conn_max_age=600,
+        ssl_require=os.environ.get('DATABASE_SSL', 'False').lower() == 'true'
     )
 }
 
